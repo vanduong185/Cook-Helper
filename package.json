@@ -1,6 +1,6 @@
 {
-  "name": "electron-react-sqlite-boilerplate",
-  "productName": "electron-app",
+  "name": "cook-helper",
+  "productName": "cook-helper",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": ".webpack/main",
@@ -24,7 +24,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "electron_app"
+            "name": "cook-helper"
           }
         },
         {
