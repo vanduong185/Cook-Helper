@@ -1,5 +1,5 @@
 # Electron Boilerplate
-- Electron-forge
+- Electron-forge (Webpack + Typescript)
 - React
 - Material-UI
 - SQLite
