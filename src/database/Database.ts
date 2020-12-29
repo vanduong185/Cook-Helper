@@ -1,7 +1,8 @@
+import path from 'path';
 import { app } from 'electron';
 import { Connection, createConnection } from 'typeorm';
 import { Item } from './models/Item';
-import path from 'path';
+import { Unit } from './models/Unit';
 
 export class Database {
   private connection: Connection;
@@ -21,14 +22,33 @@ export class Database {
       logging: true,
       logger: 'simple-console',
       database: databasePath,
-      entities: [Item],
+      entities: [Unit, Item],
     });
+  }
+
+  public async insertUnit(name: string): Promise<Unit> {
+    const unitRepo = this.connection.getRepository(Unit);
+    const unit = new Unit();
+    unit.name = name;
+
+    return unitRepo.save(unit);
+  }
+
+  public async fetchAllUnit(): Promise<Unit[]> {
+    const unitRepo = this.connection.getRepository(Unit);
+
+    return await unitRepo.find();
   }
 
   public async insert(name: string): Promise<Item> {
     const itemRepository = this.connection.getRepository(Item);
     const item = new Item();
     item.name = name;
+    item.provider = 'market';
+
+    const unitRepo = this.connection.getRepository(Unit);
+    const units = await unitRepo.find({ where: { id: 1 } });
+    item.unit = units[0];
 
     return itemRepository.save(item);
   }
@@ -36,6 +56,6 @@ export class Database {
   public async fetchAll(): Promise<Item[]> {
     const itemRepository = this.connection.getRepository(Item);
 
-    return await itemRepository.find();
+    return await itemRepository.find({ relations: ['unit'] });
   }
 }

@@ -7,7 +7,7 @@ export const App = (): ReactElement => {
   const database: Database = remote.getGlobal('database');
 
   const testDatabase = async (): Promise<void> => {
-    const insert = await database.insert('test');
+    const insert = await database.insert('rice');
 
     console.log('Insert: ');
     console.table(insert);
