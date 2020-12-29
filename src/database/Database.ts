@@ -1,5 +1,7 @@
+import { app } from 'electron';
 import { Connection, createConnection } from 'typeorm';
 import { Item } from './models/Item';
+import path from 'path';
 
 export class Database {
   private connection: Connection;
@@ -9,12 +11,16 @@ export class Database {
   }
 
   public async init(): Promise<void> {
+    // store database.sqlite at USER_DATA folder
+    const userDataPath = app.getPath('userData');
+    const databasePath = path.join(userDataPath, 'database.sqlite');
+
     this.connection = await createConnection({
       type: 'sqlite',
       synchronize: true,
       logging: true,
       logger: 'simple-console',
-      database: './assets/database.sqlite',
+      database: databasePath,
       entities: [Item],
     });
   }
