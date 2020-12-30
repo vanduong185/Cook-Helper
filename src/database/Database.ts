@@ -3,6 +3,7 @@ import { app } from 'electron';
 import { Connection, createConnection } from 'typeorm';
 import { Item } from './models/Item';
 import { Unit } from './models/Unit';
+import { Tool } from './models/Tool';
 
 export class Database {
   private connection: Connection;
@@ -22,7 +23,7 @@ export class Database {
       logging: true,
       logger: 'simple-console',
       database: databasePath,
-      entities: [Unit, Item],
+      entities: [Unit, Item, Tool],
     });
   }
 
