@@ -2,28 +2,22 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
-import { Unit } from './Unit';
-import { DishTool } from './DishTool';
+import { Dish } from './Dish';
 
 @Entity()
-export class Tool {
+export class Menu {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   name: string;
 
-  @Column()
-  size: string;
-
-  @ManyToOne(() => Unit, (unit) => unit.items)
-  unit: Unit;
-
-  @OneToMany(() => DishTool, (dishTool) => dishTool.tool)
-  public dishTools!: DishTool[];
+  @ManyToMany(() => Dish)
+  @JoinTable()
+  dishes: Dish[];
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

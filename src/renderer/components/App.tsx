@@ -6,13 +6,13 @@ import { Database } from '../../database/Database';
 export const App = (): ReactElement => {
   const database: Database = remote.getGlobal('database');
 
-  const testDatabase = async (): Promise<void> => {
-    const insert = await database.insert('rice');
+  const makeSeed = async (): Promise<void> => {
+    await database.seed();
+  };
 
-    console.log('Insert: ');
-    console.table(insert);
-    console.log('Fetch: ');
-    console.table(await database.fetchAll());
+  const showSeed = async (): Promise<void> => {
+    console.table(await database.fetchAllUnit());
+    console.table(await database.fetchAllCookType());
   };
 
   return (
@@ -22,10 +22,19 @@ export const App = (): ReactElement => {
         variant="contained"
         color="primary"
         onClick={(): void => {
-          testDatabase();
+          makeSeed();
         }}
       >
-        Test Database
+        Seed
+      </Button>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={(): void => {
+          showSeed();
+        }}
+      >
+        Show seed
       </Button>
     </div>
   );

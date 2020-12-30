@@ -4,6 +4,11 @@ import { Connection, createConnection } from 'typeorm';
 import { Item } from './models/Item';
 import { Unit } from './models/Unit';
 import { Tool } from './models/Tool';
+import { DishRecipe } from './models/DishRecipe';
+import { DishTool } from './models/DishTool';
+import { CookType } from './models/CookType';
+import { Dish } from './models/Dish';
+import { Menu } from './models/Menu';
 
 export class Database {
   private connection: Connection;
@@ -23,16 +28,44 @@ export class Database {
       logging: true,
       logger: 'simple-console',
       database: databasePath,
-      entities: [Unit, Item, Tool],
+      entities: [Unit, Item, Tool, CookType, Dish, DishRecipe, DishTool, Menu],
     });
   }
 
-  public async insertUnit(name: string): Promise<Unit> {
+  public async seed(): Promise<void> {
+    // units
+    const unitData: string[] = ['gam', 'kg', 'ml', 'lit', 'chiếc'];
     const unitRepo = this.connection.getRepository(Unit);
-    const unit = new Unit();
-    unit.name = name;
+    unitData.forEach((unitName: string): void => {
+      const unit = new Unit();
+      unit.name = unitName;
 
-    return unitRepo.save(unit);
+      unitRepo.save(unit);
+    });
+
+    // cook types
+    const cookTypeData: string[] = [
+      'nướng',
+      'hấp',
+      'chiên',
+      'xào',
+      'canh',
+      'súp',
+      'hầm',
+      'nộm',
+      'rau',
+      'tráng miệng',
+      'đồ nếp tẻ',
+      'gỏi cuốn',
+      'đồ uống',
+    ];
+    const cookTypeRepo = this.connection.getRepository(CookType);
+    cookTypeData.forEach((typeName: string): void => {
+      const cookType = new CookType();
+      cookType.name = typeName;
+
+      cookTypeRepo.save(cookType);
+    });
   }
 
   public async fetchAllUnit(): Promise<Unit[]> {
@@ -41,22 +74,9 @@ export class Database {
     return await unitRepo.find();
   }
 
-  public async insert(name: string): Promise<Item> {
-    const itemRepository = this.connection.getRepository(Item);
-    const item = new Item();
-    item.name = name;
-    item.provider = 'market';
+  public async fetchAllCookType(): Promise<CookType[]> {
+    const cookTypeRepo = this.connection.getRepository(CookType);
 
-    const unitRepo = this.connection.getRepository(Unit);
-    const units = await unitRepo.find({ where: { id: 1 } });
-    item.unit = units[0];
-
-    return itemRepository.save(item);
-  }
-
-  public async fetchAll(): Promise<Item[]> {
-    const itemRepository = this.connection.getRepository(Item);
-
-    return await itemRepository.find({ relations: ['unit'] });
+    return await cookTypeRepo.find();
   }
 }

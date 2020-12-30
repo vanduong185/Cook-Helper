@@ -4,17 +4,17 @@ import { Item } from './Item';
 @Entity()
 export class Unit {
   @PrimaryGeneratedColumn()
-  id: number;
+  id?: number;
 
   @Column()
   name: string;
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  createdAt?: Date;
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
-  updatedAt: Date;
+  updatedAt?: Date;
 
   @OneToMany(() => Item, (item) => item.unit)
-  items: Item[];
+  items?: Item[];
 }

@@ -10,7 +10,7 @@ Main features are:
 - Electron-forge (Webpack + Typescript)
 - React
 - Material-UI
-- SQLite
+- SQLite + TypeORM
 
 ## Install
 `npm install`

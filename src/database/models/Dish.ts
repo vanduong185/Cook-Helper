@@ -1,5 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { CookType } from './CookType';
+import { DishRecipe } from './DishRecipe';
+import { DishTool } from './DishTool';
 
 @Entity()
 export class Dish {
@@ -17,6 +25,12 @@ export class Dish {
 
   @ManyToOne(() => CookType, (cookType) => cookType.dishes)
   cookType: CookType;
+
+  @OneToMany(() => DishRecipe, (dishRecipe) => dishRecipe.dish)
+  public dishRecipes: DishRecipe[];
+
+  @OneToMany(() => DishTool, (dishTool) => dishTool.dish)
+  public dishTools: DishTool[];
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
