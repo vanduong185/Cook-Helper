@@ -42,10 +42,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 export const AppBar = (): ReactElement => {
   const classes = useStyles();
 
-  const [open, setOpen] = React.useState(true);
-  const handleDrawerOpen = (): void => {
-    setOpen(true);
-  };
+  const open = true;
 
   return (
     <MUIAppBar
@@ -57,7 +54,6 @@ export const AppBar = (): ReactElement => {
           edge="start"
           color="inherit"
           aria-label="open drawer"
-          onClick={handleDrawerOpen}
           className={clsx(classes.menuButton, open && classes.menuButtonHidden)}
         >
           <Menu />

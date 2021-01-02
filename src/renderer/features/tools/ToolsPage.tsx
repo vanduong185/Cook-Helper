@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 
-export const Home = (): ReactElement => {
+export const ToolsPage = (): ReactElement => {
   return (
     <div
       style={{
@@ -9,7 +9,7 @@ export const Home = (): ReactElement => {
         alignItems: 'center',
       }}
     >
-      <h1>Home</h1>
+      <h1>Tools</h1>
     </div>
   );
 };

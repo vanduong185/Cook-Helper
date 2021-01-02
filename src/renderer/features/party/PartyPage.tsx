@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 
-export const ItemManager = (): ReactElement => {
+export const PartyPage = (): ReactElement => {
   return (
     <div
       style={{
@@ -9,7 +9,7 @@ export const ItemManager = (): ReactElement => {
         alignItems: 'center',
       }}
     >
-      <h1>ItemManager</h1>
+      <h1>Party</h1>
     </div>
   );
 };
