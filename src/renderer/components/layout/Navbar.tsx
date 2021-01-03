@@ -18,6 +18,8 @@ import {
 } from '@material-ui/icons';
 import { DRAWER_WIDTH } from '../../constants/AppConst';
 import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleNavbar } from './NavbarSlice';
 
 const useStyles = makeStyles((theme: Theme) => ({
   toolbar: {
@@ -55,7 +57,13 @@ const useStyles = makeStyles((theme: Theme) => ({
 export const Navbar = (): ReactElement => {
   const classes = useStyles();
 
-  const open = true;
+  const open = useSelector((state: any) => state.navbar);
+  const dispatch = useDispatch();
+
+  const handleCloseNavbar = (): void => {
+    const action = toggleNavbar(false);
+    dispatch(action);
+  };
 
   return (
     <Drawer
@@ -66,7 +74,7 @@ export const Navbar = (): ReactElement => {
       open={open}
     >
       <div className={classes.toolbarIcon}>
-        <IconButton>
+        <IconButton onClick={handleCloseNavbar}>
           <ChevronLeft />
         </IconButton>
       </div>
@@ -78,7 +86,7 @@ export const Navbar = (): ReactElement => {
 
 export const mainListItems = (
   <div>
-    <Link to={'/main_window'}>
+    <Link to={'/'}>
       <ListItem button>
         <ListItemIcon>
           <HomeIcon />

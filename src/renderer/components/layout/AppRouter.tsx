@@ -9,11 +9,11 @@ import { ToolsPage } from '../../features/tools/ToolsPage';
 export const AppRouter = (): ReactElement => {
   return (
     <Switch>
-      <Route path="/main_window" exact component={HomePage} />
-      <Route path="/party" exact component={PartyPage} />
-      <Route path="/dishes" exact component={DishesPage} />
-      <Route path="/items" exact component={ItemPage} />
-      <Route path="/tools" exact component={ToolsPage} />
+      <Route path="/" exact component={HomePage} />
+      <Route path="/party" component={PartyPage} />
+      <Route path="/dishes" component={DishesPage} />
+      <Route path="/items" component={ItemPage} />
+      <Route path="/tools" component={ToolsPage} />
     </Switch>
   );
 };
