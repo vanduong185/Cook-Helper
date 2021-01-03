@@ -1,4 +1,6 @@
 import React, { ReactElement } from 'react';
+import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import clsx from 'clsx';
 import {
   IconButton,
@@ -17,9 +19,9 @@ import {
   Home as HomeIcon,
 } from '@material-ui/icons';
 import { DRAWER_WIDTH } from '../../constants/AppConst';
-import { Link } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+
 import { toggleNavbar } from './NavbarSlice';
+import { AppState } from '../../store/store';
 
 const useStyles = makeStyles((theme: Theme) => ({
   toolbar: {
@@ -57,7 +59,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 export const Navbar = (): ReactElement => {
   const classes = useStyles();
 
-  const open = useSelector((state: any) => state.navbar);
+  const open = useSelector((state: AppState) => state.navbar);
+
   const dispatch = useDispatch();
 
   const handleCloseNavbar = (): void => {

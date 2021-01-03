@@ -79,4 +79,21 @@ export class Database {
 
     return await cookTypeRepo.find();
   }
+
+  public async addItem(item: Item): Promise<Item> {
+    const itemRepo = this.connection.getRepository(Item);
+    // const tmpItem = new Item();
+    // tmpItem.name = item.name;
+    // tmpItem.provider = item.provider;
+
+    return itemRepo.save(item);
+  }
+
+  public async fetchAllItem(): Promise<Item[]> {
+    const itemRepo = this.connection.getRepository(Item);
+
+    return await itemRepo.find({
+      relations: ['unit'],
+    });
+  }
 }
