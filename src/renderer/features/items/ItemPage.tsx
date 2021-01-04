@@ -1,30 +1,17 @@
 import React, { ReactElement } from 'react';
-import { Container, Box, Button, Modal } from '@material-ui/core';
-import { DataGrid, ColDef, CellParams } from '@material-ui/data-grid';
-import { Add } from '@material-ui/icons';
+import { Container, Box, Button, Modal, IconButton } from '@material-ui/core';
+import { DataGrid, CellParams } from '@material-ui/data-grid';
+import { Add, Edit, Delete } from '@material-ui/icons';
 import { ItemEdit } from './components/ItemEdit';
 import { useDispatch, useSelector } from 'react-redux';
 import { getItems } from './ItemSlice';
 import { AppState } from '../../store/store';
 import { UnitDTO } from '../../dto/UnitDTO';
-
-const columns: ColDef[] = [
-  { field: 'id', headerName: 'ID', width: 70 },
-  { field: 'name', headerName: 'Tên', width: 250 },
-  { field: 'provider', headerName: 'Nơi cung cấp', width: 250 },
-  {
-    field: 'unit',
-    headerName: 'Đơn vị',
-    width: 200,
-    valueFormatter: (params: CellParams): string => {
-      const unit = params.value as UnitDTO;
-      return unit?.name;
-    },
-  },
-];
+import { ItemDTO } from '../../dto/ItemDTO';
 
 export const ItemPage = (): ReactElement => {
-  const [open, setOpen] = React.useState(false);
+  const [openEditModal, setOpenEditModal] = React.useState(false);
+  const [selectedItem, setSelectedItem] = React.useState<ItemDTO>();
 
   const dispatch = useDispatch();
 
@@ -34,30 +21,81 @@ export const ItemPage = (): ReactElement => {
 
   const items = useSelector((state: AppState) => state.items);
 
-  const handleOpen = (): void => {
-    setOpen(true);
+  const handleOpenEditModal = (): void => {
+    setOpenEditModal(true);
   };
 
-  const handleClose = (): void => {
-    setOpen(false);
+  const handleCloseEditModal = (): void => {
+    setOpenEditModal(false);
+    setSelectedItem(undefined);
+  };
+
+  const handleEditClick = (itemId: number): void => {
+    const item = items.find((i) => i.id === itemId);
+    setSelectedItem(item);
+    setOpenEditModal(true);
   };
 
   return (
     <Container>
       <h1>Quản lý nguyên liệu</h1>
       <Box display="flex" justifyContent="flex-end" my="20px">
-        <Button variant="contained" color="primary" onClick={handleOpen}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpenEditModal}
+        >
           <Add></Add>
           Thêm nguyên liệu
         </Button>
       </Box>
-      <div style={{ height: 550, width: '100%' }}>
-        <DataGrid rows={items} columns={columns} pageSize={10} />
+      <div style={{ height: 650, width: '100%' }}>
+        <DataGrid
+          rows={items}
+          columns={[
+            { field: 'id', headerName: 'ID', width: 70 },
+            { field: 'name', headerName: 'Tên', width: 250 },
+            { field: 'provider', headerName: 'Nơi cung cấp', width: 250 },
+            {
+              field: 'unit',
+              headerName: 'Đơn vị',
+              width: 100,
+              valueFormatter: (params: CellParams): string => {
+                const unit = params.value as UnitDTO;
+                return unit?.name;
+              },
+            },
+            {
+              field: 'action',
+              headerName: ' ',
+              sortable: false,
+              disableColumnMenu: true,
+              width: 150,
+              renderCell: (params: CellParams): ReactElement => {
+                return (
+                  <Box display="flex" flexDirection="row">
+                    <IconButton
+                      onClick={(): void => {
+                        handleEditClick(params.getValue('id') as number);
+                      }}
+                    >
+                      <Edit color="primary" fontSize="small"></Edit>
+                    </IconButton>
+                    <IconButton>
+                      <Delete color="secondary" fontSize="small"></Delete>
+                    </IconButton>
+                  </Box>
+                );
+              },
+            },
+          ]}
+          pageSize={10}
+        />
       </div>
       <Modal
         id="add-modal"
-        open={open}
-        onClose={handleClose}
+        open={openEditModal}
+        onClose={handleCloseEditModal}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -67,7 +105,11 @@ export const ItemPage = (): ReactElement => {
         aria-describedby="simple-modal-description"
       >
         <>
-          <ItemEdit></ItemEdit>
+          <ItemEdit
+            onClose={handleCloseEditModal}
+            item={selectedItem}
+            isEdit={!!selectedItem}
+          ></ItemEdit>
         </>
       </Modal>
     </Container>

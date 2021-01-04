@@ -29,5 +29,28 @@ export class ItemController {
         return newItem;
       },
     );
+
+    ipcMain.handle(
+      'item-update',
+      async (_event, item: Item): Promise<Item> => {
+        const itemRepo = this.database.connection.getRepository(Item);
+        // const item = await itemRepo.find({
+        //   where: {id: item.id}
+        // });
+
+        const result = await itemRepo
+          .createQueryBuilder()
+          .update(Item)
+          .set({
+            ...item,
+          })
+          .where('id = :id', { id: item.id })
+          .execute();
+
+        console.log(result.raw);
+
+        return item;
+      },
+    );
   }
 }

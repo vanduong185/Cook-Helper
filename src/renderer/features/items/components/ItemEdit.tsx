@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import {
   Paper,
@@ -9,7 +9,7 @@ import {
   Button,
 } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
-import { addItem } from '../ItemSlice';
+import { addItem, updateItem } from '../ItemSlice';
 import { ItemDTO } from '../../../dto/ItemDTO';
 import { getUnits } from '../../units/UnitSlice';
 import { AppState } from '../../../store/store';
@@ -25,7 +25,13 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export const ItemEdit = React.forwardRef((props, ref) => {
+interface Props {
+  onClose: () => void;
+  item?: ItemDTO;
+  isEdit?: boolean;
+}
+
+export const ItemEdit = (props: Props): ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
@@ -35,32 +41,45 @@ export const ItemEdit = React.forwardRef((props, ref) => {
 
   const unitsData = useSelector((state: AppState) => state.units);
 
-  const initItem: ItemDTO = {
+  const initItem: ItemDTO = props.item || {
     id: undefined,
     name: '',
     provider: '',
-    unit: undefined,
+    unit: {
+      id: undefined,
+      name: undefined,
+    },
   };
 
   const [item, setItem] = React.useState<ItemDTO>(initItem);
 
-  const createItem = (): void => {
+  const hanleCreateItem = (): void => {
     dispatch(addItem(item));
+    props.onClose();
+  };
+
+  const handleUpdateItem = (): void => {
+    dispatch(updateItem(item));
+    props.onClose();
   };
 
   return (
-    <Paper className={classes.paper} ref={ref}>
-      <h1>Thêm nguyên liệu mới</h1>
+    <Paper className={classes.paper}>
+      <h1>{props.isEdit ? 'Sửa nguyên liệu' : 'Thêm nguyên liệu mới'}</h1>
       <Divider></Divider>
       <Box my="30px">
         <TextField
           required
           id="outlined-required"
           label="Tên nguyên liệu"
+          defaultValue={item.name}
           placeholder="Nhập tên nguyên liệu"
           onChange={(event): void => {
-            item.name = event.target.value;
-            setItem(item);
+            const tmpItem = {
+              ...item,
+              name: event.target.value,
+            };
+            setItem(tmpItem);
           }}
           variant="outlined"
           style={{
@@ -74,10 +93,14 @@ export const ItemEdit = React.forwardRef((props, ref) => {
           required
           id="outlined-required"
           label="Nguồn cung cấp"
+          defaultValue={item.provider}
           placeholder="Nhập nguồn cung cấp"
           onChange={(event): void => {
-            item.provider = event.target.value;
-            setItem(item);
+            const tmpItem = {
+              ...item,
+              provider: event.target.value,
+            };
+            setItem(tmpItem);
           }}
           variant="outlined"
           style={{
@@ -92,12 +115,15 @@ export const ItemEdit = React.forwardRef((props, ref) => {
           required
           label="Đơn vị"
           variant="outlined"
-          defaultValue={''}
+          value={item.unit.id || ''}
           onChange={(event): void => {
             const unitId = +event.target.value;
             const unit = unitsData.find((u) => u.id === unitId);
-            item.unit = unit;
-            setItem(item);
+            const tmpItem = {
+              ...item,
+              unit,
+            };
+            setItem(tmpItem);
           }}
           style={{
             width: 350,
@@ -112,10 +138,14 @@ export const ItemEdit = React.forwardRef((props, ref) => {
       </Box>
 
       <Box mt="60px" display="flex" justifyContent="flex-end">
-        <Button variant="contained" color="primary" onClick={createItem}>
-          Thêm
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={props.isEdit ? handleUpdateItem : hanleCreateItem}
+        >
+          {props.isEdit ? 'Lưu' : 'Thêm'}
         </Button>
       </Box>
     </Paper>
   );
-});
+};

@@ -4,7 +4,6 @@ import { UnitDTO } from '../../dto/UnitDTO';
 
 export const getUnits = createAsyncThunk('unit/getAll', async () => {
   const unitsData = (await ipcRenderer.invoke('unit-get-all')) as UnitDTO[];
-
   return unitsData;
 });
 
