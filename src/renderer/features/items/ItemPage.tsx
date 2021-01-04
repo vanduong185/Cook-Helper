@@ -88,14 +88,14 @@ export const ItemPage = (): ReactElement => {
                   <Box display="flex" flexDirection="row">
                     <IconButton
                       onClick={(): void => {
-                        handleEditClick(params.getValue('id') as number);
+                        handleEditClick(params.row.id as number);
                       }}
                     >
                       <Edit color="primary" fontSize="small"></Edit>
                     </IconButton>
                     <IconButton
                       onClick={(): void => {
-                        handleDeleteClick(params.getValue('id') as number);
+                        handleDeleteClick(params.row.id as number);
                       }}
                     >
                       <Delete color="secondary" fontSize="small"></Delete>
