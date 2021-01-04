@@ -15,5 +15,11 @@ Main features are:
 ## Install
 `npm install`
 
+**NOTE** use NodeJS version compatibility https://www.npmjs.com/package/sqlite3
+By default the node-gyp install will use python as part of the installation. A different python executable can be specified on the command line.
+`npm install --build-from-source --python=/usr/bin/python2`
+This uses the npm_config_python config, so values in **.npmrc** will be honoured:
+`python=/usr/bin/python2`
+
 ## Run
 `npm start`
