@@ -4,7 +4,7 @@ import { DataGrid, CellParams } from '@material-ui/data-grid';
 import { Add, Edit, Delete } from '@material-ui/icons';
 import { ItemEdit } from './components/ItemEdit';
 import { useDispatch, useSelector } from 'react-redux';
-import { getItems } from './ItemSlice';
+import { deleteItem, getItems } from './ItemSlice';
 import { AppState } from '../../store/store';
 import { UnitDTO } from '../../dto/UnitDTO';
 import { ItemDTO } from '../../dto/ItemDTO';
@@ -36,6 +36,11 @@ export const ItemPage = (): ReactElement => {
     setOpenEditModal(true);
   };
 
+  const handleDeleteClick = (itemId: number): void => {
+    const item = items.find((i) => i.id === itemId);
+    dispatch(deleteItem(item));
+  };
+
   return (
     <Container>
       <h1>Quản lý nguyên liệu</h1>
@@ -53,7 +58,14 @@ export const ItemPage = (): ReactElement => {
         <DataGrid
           rows={items}
           columns={[
-            { field: 'id', headerName: 'ID', width: 70 },
+            {
+              field: 'seq',
+              headerName: 'STT',
+              width: 100,
+              valueFormatter: (params: CellParams): string => {
+                return `${params.rowIndex + 1}`;
+              },
+            },
             { field: 'name', headerName: 'Tên', width: 250 },
             { field: 'provider', headerName: 'Nơi cung cấp', width: 250 },
             {
@@ -81,7 +93,11 @@ export const ItemPage = (): ReactElement => {
                     >
                       <Edit color="primary" fontSize="small"></Edit>
                     </IconButton>
-                    <IconButton>
+                    <IconButton
+                      onClick={(): void => {
+                        handleDeleteClick(params.getValue('id') as number);
+                      }}
+                    >
                       <Delete color="secondary" fontSize="small"></Delete>
                     </IconButton>
                   </Box>

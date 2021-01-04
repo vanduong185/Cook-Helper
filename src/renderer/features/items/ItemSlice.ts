@@ -29,6 +29,17 @@ export const updateItem = createAsyncThunk(
   },
 );
 
+export const deleteItem = createAsyncThunk(
+  'item/delete',
+  async (item: ItemDTO): Promise<ItemDTO> => {
+    const deletedItem = (await ipcRenderer.invoke(
+      'item-delete',
+      item,
+    )) as ItemDTO;
+    return deletedItem;
+  },
+);
+
 const initItems: ItemDTO[] = [];
 const itemSlice = createSlice({
   name: 'item',
@@ -45,6 +56,11 @@ const itemSlice = createSlice({
       const updatedItem = action.payload as ItemDTO;
       const index = state.findIndex((i) => i.id === updatedItem.id);
       state[index] = updatedItem;
+    },
+    [deleteItem.fulfilled.toString()]: (state, action): void => {
+      const deletedItem = action.payload as ItemDTO;
+      const index = state.findIndex((i) => i.id === deletedItem.id);
+      state.splice(index, 1);
     },
   },
 });

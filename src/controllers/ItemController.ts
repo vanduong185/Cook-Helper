@@ -34,11 +34,8 @@ export class ItemController {
       'item-update',
       async (_event, item: Item): Promise<Item> => {
         const itemRepo = this.database.connection.getRepository(Item);
-        // const item = await itemRepo.find({
-        //   where: {id: item.id}
-        // });
 
-        const result = await itemRepo
+        await itemRepo
           .createQueryBuilder()
           .update(Item)
           .set({
@@ -47,7 +44,21 @@ export class ItemController {
           .where('id = :id', { id: item.id })
           .execute();
 
-        console.log(result.raw);
+        return item;
+      },
+    );
+
+    ipcMain.handle(
+      'item-delete',
+      async (_event, item: Item): Promise<Item> => {
+        const itemRepo = this.database.connection.getRepository(Item);
+
+        await itemRepo
+          .createQueryBuilder()
+          .delete()
+          .from(Item)
+          .where('id = :id', { id: item.id })
+          .execute();
 
         return item;
       },
