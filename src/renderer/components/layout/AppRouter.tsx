@@ -4,7 +4,7 @@ import { HomePage } from '../../features/home/HomePage';
 import { ItemPage } from '../../features/items/ItemPage';
 import { PartyPage } from '../../features/party/PartyPage';
 import { DishesPage } from '../../features/dishes/DishesPage';
-import { ToolsPage } from '../../features/tools/ToolsPage';
+import { ToolPage } from '../../features/tools/ToolPage';
 
 export const AppRouter = (): ReactElement => {
   return (
@@ -13,7 +13,7 @@ export const AppRouter = (): ReactElement => {
       <Route path="/party" component={PartyPage} />
       <Route path="/dishes" component={DishesPage} />
       <Route path="/items" component={ItemPage} />
-      <Route path="/tools" component={ToolsPage} />
+      <Route path="/tools" component={ToolPage} />
     </Switch>
   );
 };
