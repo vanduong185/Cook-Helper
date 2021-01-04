@@ -1,4 +1,7 @@
 import { app, BrowserWindow } from 'electron';
+import { ItemController } from './controllers/ItemController';
+import { ToolController } from './controllers/ToolController';
+import { UnitController } from './controllers/UnitController';
 import { Database } from './database/Database';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -23,11 +26,20 @@ const createWindow = (): void => {
   // init sqlite database
   global.database = new Database();
 
+  // init controllers
+  initControllers();
+
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+};
+
+const initControllers = (): void => {
+  new UnitController();
+  new ItemController();
+  new ToolController();
 };
 
 // This method will be called when Electron has finished

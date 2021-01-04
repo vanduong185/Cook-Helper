@@ -6,10 +6,10 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Unit } from './Unit';
-import { DishRecipe } from './DishRecipe';
+import { DishTool } from './DishTool';
 
 @Entity()
-export class Item {
+export class Tool {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -17,13 +17,13 @@ export class Item {
   name: string;
 
   @Column()
-  provider: string;
+  size: string;
 
   @ManyToOne(() => Unit, (unit) => unit.items)
   unit: Unit;
 
-  @OneToMany(() => DishRecipe, (dishRecipe) => dishRecipe.item)
-  public dishRecipes!: DishRecipe[];
+  @OneToMany(() => DishTool, (dishTool) => dishTool.tool)
+  public dishTools!: DishTool[];
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
