@@ -10,16 +10,15 @@ import { UnitDTO } from '../../dto/UnitDTO';
 
 const columns: ColDef[] = [
   { field: 'id', headerName: 'ID', width: 70 },
-  { field: 'name', headerName: 'Ten nguyen lieu', width: 250 },
-  { field: 'provider', headerName: 'Noi cung cap', width: 250 },
+  { field: 'name', headerName: 'Tên', width: 250 },
+  { field: 'provider', headerName: 'Nơi cung cấp', width: 250 },
   {
     field: 'unit',
-    headerName: 'Don vi',
+    headerName: 'Đơn vị',
     width: 200,
     valueFormatter: (params: CellParams): string => {
       const unit = params.value as UnitDTO;
-
-      return unit.name;
+      return unit?.name;
     },
   },
 ];
@@ -34,7 +33,6 @@ export const ItemPage = (): ReactElement => {
   }, [dispatch]);
 
   const items = useSelector((state: AppState) => state.items);
-  console.log(items);
 
   const handleOpen = (): void => {
     setOpen(true);

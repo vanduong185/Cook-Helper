@@ -1,59 +1,30 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { remote } from 'electron';
-import { Database } from '../../../database/Database';
+import { ipcRenderer } from 'electron';
 import { ItemDTO } from '../../dto/ItemDTO';
-import { Item } from '../../../database/models/Item';
-import { Unit } from '../../../database/models/Unit';
 
 export const addItem = createAsyncThunk(
   'item/addItem',
-  async (itemDTO: ItemDTO) => {
-    const database = remote.getGlobal('database') as Database;
+  async (item: ItemDTO): Promise<ItemDTO> => {
+    const newItem = (await ipcRenderer.invoke('item-add', item)) as ItemDTO;
 
-    const item: Item = new Item();
-    item.name = itemDTO.name;
-    item.provider = itemDTO.provider;
-    item.unit = new Unit();
-    item.unit.id = itemDTO.unit.id;
-
-    const newItem = await database.addItem(item);
-    itemDTO.id = newItem.id;
-
-    return itemDTO;
+    return newItem;
   },
 );
 
-export const getItems = createAsyncThunk('item/getItems', async () => {
-  const database = remote.getGlobal('database') as Database;
-  const data = await database.fetchAllItem();
+export const getItems = createAsyncThunk(
+  'item/getItems',
+  async (): Promise<ItemDTO[]> => {
+    const itemsData = (await ipcRenderer.invoke('item-get-all')) as ItemDTO[];
 
-  const items: ItemDTO[] = [];
-  data.forEach((itemData) => {
-    items.push({
-      id: itemData.id,
-      name: itemData.name,
-      provider: itemData.provider,
-      unit: {
-        id: itemData.unit?.id,
-        name: itemData.unit?.name,
-      },
-    });
-  });
-
-  return items;
-});
+    return itemsData;
+  },
+);
 
 const initItems: ItemDTO[] = [];
 
 const itemSlice = createSlice({
   name: 'item',
   initialState: initItems,
-  // reducers: {
-  //   addItem: (state, action): Item[] => {
-  //     state.push(action.payload);
-  //     return state;
-  //   },
-  // },
   reducers: {},
   extraReducers: {
     [getItems.fulfilled.toString()]: (state, action): void => {

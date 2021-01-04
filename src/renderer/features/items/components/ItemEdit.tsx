@@ -8,9 +8,11 @@ import {
   MenuItem,
   Button,
 } from '@material-ui/core';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addItem } from '../ItemSlice';
 import { ItemDTO } from '../../../dto/ItemDTO';
+import { getUnits } from '../../units/UnitSlice';
+import { AppState } from '../../../store/store';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -25,19 +27,19 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export const ItemEdit = React.forwardRef((props, ref) => {
   const classes = useStyles();
-
   const dispatch = useDispatch();
 
-  console.log('init');
+  React.useEffect(() => {
+    dispatch(getUnits());
+  }, [dispatch]);
+
+  const unitsData = useSelector((state: AppState) => state.units);
 
   const initItem: ItemDTO = {
     id: undefined,
     name: '',
     provider: '',
-    unit: {
-      id: 1,
-      name: undefined,
-    },
+    unit: undefined,
   };
 
   const [item, setItem] = React.useState<ItemDTO>(initItem);
@@ -90,19 +92,20 @@ export const ItemEdit = React.forwardRef((props, ref) => {
           required
           label="Đơn vị"
           variant="outlined"
-          defaultValue={item.unit.id}
+          defaultValue={''}
           onChange={(event): void => {
-            console.log(event.target.value);
-            item.unit.id = +event.target.value;
+            const unitId = +event.target.value;
+            const unit = unitsData.find((u) => u.id === unitId);
+            item.unit = unit;
             setItem(item);
           }}
           style={{
             width: 350,
           }}
         >
-          {units.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
+          {unitsData.map((option) => (
+            <MenuItem key={option.id} value={option.id}>
+              {option.name}
             </MenuItem>
           ))}
         </TextField>
@@ -116,22 +119,3 @@ export const ItemEdit = React.forwardRef((props, ref) => {
     </Paper>
   );
 });
-
-const units = [
-  {
-    value: 1,
-    label: 'gam',
-  },
-  {
-    value: 2,
-    label: 'kg',
-  },
-  {
-    value: 3,
-    label: 'ml',
-  },
-  {
-    value: 4,
-    label: 'lit',
-  },
-];
