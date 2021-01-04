@@ -9,8 +9,8 @@ import {
   Button,
 } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
-import { addItem, updateItem } from '../ItemSlice';
-import { ItemDTO } from '../../../dto/ItemDTO';
+import { addTool, updateTool } from '../ToolSlice';
+import { ToolDTO } from '../../../dto/ToolDTO';
 import { getUnits } from '../../units/UnitSlice';
 import { AppState } from '../../../store/store';
 
@@ -27,11 +27,11 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   onClose: () => void;
-  item?: ItemDTO;
+  tool?: ToolDTO;
   isEdit?: boolean;
 }
 
-export const ItemEdit = (props: Props): ReactElement => {
+export const ToolEdit = (props: Props): ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
@@ -41,45 +41,45 @@ export const ItemEdit = (props: Props): ReactElement => {
 
   const unitsData = useSelector((state: AppState) => state.units);
 
-  const initItem: ItemDTO = props.item || {
+  const initTool: ToolDTO = props.tool || {
     id: undefined,
     name: '',
-    provider: '',
+    size: '',
     unit: {
       id: undefined,
       name: undefined,
     },
   };
 
-  const [item, setItem] = React.useState<ItemDTO>(initItem);
+  const [tool, setTool] = React.useState<ToolDTO>(initTool);
 
-  const hanleCreateItem = (): void => {
-    dispatch(addItem(item));
+  const hanleCreateTool = (): void => {
+    dispatch(addTool(tool));
     props.onClose();
   };
 
-  const handleUpdateItem = (): void => {
-    dispatch(updateItem(item));
+  const handleUpdateTool = (): void => {
+    dispatch(updateTool(tool));
     props.onClose();
   };
 
   return (
     <Paper className={classes.paper}>
-      <h1>{props.isEdit ? 'Sửa nguyên liệu' : 'Thêm nguyên liệu mới'}</h1>
+      <h1>{props.isEdit ? 'Sửa dụng cụ' : 'Thêm dụng cụ mới'}</h1>
       <Divider></Divider>
       <Box my="30px">
         <TextField
           required
           id="outlined-required"
-          label="Tên nguyên liệu"
-          defaultValue={item.name}
-          placeholder="Nhập tên nguyên liệu"
+          label="Tên dụng cụ"
+          defaultValue={tool.name}
+          placeholder="Nhập tên dụng cụ"
           onChange={(event): void => {
-            const tmpItem: ItemDTO = {
-              ...item,
+            const tmpTool: ToolDTO = {
+              ...tool,
               name: event.target.value,
             };
-            setItem(tmpItem);
+            setTool(tmpTool);
           }}
           variant="outlined"
           style={{
@@ -92,15 +92,15 @@ export const ItemEdit = (props: Props): ReactElement => {
         <TextField
           required
           id="outlined-required"
-          label="Nguồn cung cấp"
-          defaultValue={item.provider}
-          placeholder="Nhập nguồn cung cấp"
+          label="Kích cỡ"
+          defaultValue={tool.size}
+          placeholder="Nhập kích cỡ"
           onChange={(event): void => {
-            const tmpItem: ItemDTO = {
-              ...item,
-              provider: event.target.value,
+            const tmpTool: ToolDTO = {
+              ...tool,
+              size: event.target.value,
             };
-            setItem(tmpItem);
+            setTool(tmpTool);
           }}
           variant="outlined"
           style={{
@@ -115,15 +115,15 @@ export const ItemEdit = (props: Props): ReactElement => {
           required
           label="Đơn vị"
           variant="outlined"
-          value={item.unit.id || ''}
+          value={tool.unit.id || ''}
           onChange={(event): void => {
             const unitId = +event.target.value;
             const unit = unitsData.find((u) => u.id === unitId);
-            const tmpItem: ItemDTO = {
-              ...item,
+            const tmpTool: ToolDTO = {
+              ...tool,
               unit,
             };
-            setItem(tmpItem);
+            setTool(tmpTool);
           }}
           style={{
             width: 350,
@@ -141,7 +141,7 @@ export const ItemEdit = (props: Props): ReactElement => {
         <Button
           variant="contained"
           color="primary"
-          onClick={props.isEdit ? handleUpdateItem : hanleCreateItem}
+          onClick={props.isEdit ? handleUpdateTool : hanleCreateTool}
         >
           {props.isEdit ? 'Lưu' : 'Thêm'}
         </Button>

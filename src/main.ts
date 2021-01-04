@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import { ItemController } from './controllers/ItemController';
+import { ToolController } from './controllers/ToolController';
 import { UnitController } from './controllers/UnitController';
 import { Database } from './database/Database';
 
@@ -38,6 +39,7 @@ const createWindow = (): void => {
 const initControllers = (): void => {
   new UnitController();
   new ItemController();
+  new ToolController();
 };
 
 // This method will be called when Electron has finished
