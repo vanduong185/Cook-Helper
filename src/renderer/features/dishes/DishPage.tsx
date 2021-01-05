@@ -41,7 +41,7 @@ export const DishPage = (): ReactElement => {
         </Button>
       </Box>
 
-      <div style={{ height: 650, width: '100%' }}>
+      <div style={{ height: 650, width: '100%', marginBottom: '30px' }}>
         <DataGrid
           rows={dishes}
           columns={[
@@ -57,16 +57,21 @@ export const DishPage = (): ReactElement => {
             {
               field: 'mainIngredient',
               headerName: 'Nguyên liệu chính',
-              width: 250,
+              width: 200,
             },
             {
               field: 'cookType',
               headerName: 'Cách chế biến',
-              width: 100,
-              valueFormatter: (params: CellParams): string => {
+              width: 200,
+              valueGetter: (params: CellParams): string => {
                 const type = params.value as CookTypeDTO;
                 return type?.name;
               },
+            },
+            {
+              field: 'cost',
+              headerName: 'Giá',
+              width: 200,
             },
             {
               field: 'action',
