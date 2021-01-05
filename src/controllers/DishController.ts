@@ -21,7 +21,7 @@ export class DishController {
       async (): Promise<Dish[]> => {
         const dishRepo = this.database.connection.getRepository(Dish);
 
-        const data = await dishRepo
+        const dishesData = await dishRepo
           .createQueryBuilder('dish')
           .leftJoinAndMapOne(
             'dish.cookType',
@@ -55,9 +55,7 @@ export class DishController {
           )
           .getMany();
 
-        console.log(data);
-
-        return data;
+        return dishesData;
       },
     );
 
@@ -87,8 +85,7 @@ export class DishController {
           await dishToolRepo.save(dishTool);
         });
 
-        dish.id = newDish.id;
-        return dish;
+        return newDish;
       },
     );
   }

@@ -6,7 +6,8 @@ export const addDish = createAsyncThunk(
   'dish/add',
   async (dish: DishDTO): Promise<DishDTO> => {
     const newDish = (await ipcRenderer.invoke('dish-add', dish)) as DishDTO;
-    return newDish;
+    dish.id = newDish.id;
+    return dish;
   },
 );
 
@@ -14,8 +15,6 @@ export const getDishes = createAsyncThunk(
   'dish/getAll',
   async (): Promise<DishDTO[]> => {
     const dishesData = (await ipcRenderer.invoke('dish-get-all')) as DishDTO[];
-    console.log('data dishes', dishesData);
-
     return dishesData;
   },
 );
@@ -26,11 +25,11 @@ const dishSlice = createSlice({
   initialState: initDishes,
   reducers: {},
   extraReducers: {
-    [getDishes.fulfilled.toString()]: (state, action): void => {
+    [getDishes.fulfilled.toString()]: (state, action): DishDTO[] => {
       return action.payload;
     },
     [addDish.fulfilled.toString()]: (state, action): void => {
-      state.push(action.payload);
+      state.push(action.payload as DishDTO);
     },
   },
 });

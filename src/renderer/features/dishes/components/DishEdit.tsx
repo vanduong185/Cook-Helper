@@ -141,7 +141,6 @@ export const DishEdit = (props: Props): ReactElement => {
   };
 
   const handleCreateDish = (): void => {
-    console.log(dish);
     dispatch(addDish(dish));
     props.onClose();
   };
