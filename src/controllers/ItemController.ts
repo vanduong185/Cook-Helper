@@ -4,6 +4,7 @@ import { Item } from '../database/models/Item';
 
 export class ItemController {
   database: Database;
+
   constructor() {
     this.database = global.database;
     this.init();

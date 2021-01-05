@@ -23,6 +23,8 @@ import clsx from 'clsx';
 import { getTools } from '../../tools/ToolSlice';
 import { DishToolDTO } from '../../../dto/DishToolDTO';
 import { ToolDTO } from '../../../dto/ToolDTO';
+import { getCookTypes } from '../../cook-types/CookTypeSlice';
+import { addDish } from '../DishSlice';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -44,21 +46,23 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-// interface Props {
-//   onClose: () => void;
-//   isEdit?: boolean;
-// }
+interface Props {
+  onClose: () => void;
+  isEdit?: boolean;
+}
 
-export const DishEdit = (): ReactElement => {
+export const DishEdit = (props: Props): ReactElement => {
   const classes = useStyles();
 
   const dispatch = useDispatch();
 
   React.useEffect(() => {
+    dispatch(getCookTypes());
     dispatch(getItems());
     dispatch(getTools());
   }, [dispatch]);
 
+  const cookTypes = useSelector((state: AppState) => state.cookTypes);
   const items = useSelector((state: AppState) => state.items);
   const tools = useSelector((state: AppState) => state.tools);
 
@@ -136,6 +140,12 @@ export const DishEdit = (): ReactElement => {
     setDish(tmpDish);
   };
 
+  const handleCreateDish = (): void => {
+    console.log(dish);
+    dispatch(addDish(dish));
+    props.onClose();
+  };
+
   return (
     <Paper className={classes.paper}>
       <h1>Thêm món ăn mới</h1>
@@ -151,6 +161,15 @@ export const DishEdit = (): ReactElement => {
             style={{
               width: 250,
             }}
+            defaultValue={dish.name}
+            onChange={(event): void => {
+              const name = event.target.value;
+              const tmpDish: DishDTO = {
+                ...dish,
+                name,
+              };
+              setDish(tmpDish);
+            }}
           />
         </Box>
 
@@ -164,6 +183,15 @@ export const DishEdit = (): ReactElement => {
             style={{
               width: 200,
             }}
+            defaultValue={dish.mainIngredient}
+            onChange={(event): void => {
+              const mainIngredient = event.target.value;
+              const tmpDish: DishDTO = {
+                ...dish,
+                mainIngredient,
+              };
+              setDish(tmpDish);
+            }}
           />
         </Box>
 
@@ -173,13 +201,22 @@ export const DishEdit = (): ReactElement => {
             select
             id="outlined-required"
             label="Cách chế biến"
-            defaultValue={1}
+            value={dish.cookType.id || ''}
             variant="outlined"
             style={{
               width: 200,
             }}
+            onChange={(event): void => {
+              const typeId = +event.target.value;
+              const cookType = cookTypes.find((t) => t.id === typeId);
+              const tmpDish: DishDTO = {
+                ...dish,
+                cookType,
+              };
+              setDish(tmpDish);
+            }}
           >
-            {unitsData.map((option) => (
+            {cookTypes.map((option) => (
               <MenuItem key={option.id} value={option.id}>
                 {option.name}
               </MenuItem>
@@ -196,6 +233,15 @@ export const DishEdit = (): ReactElement => {
             variant="outlined"
             style={{
               width: 200,
+            }}
+            defaultValue={dish.cost || ''}
+            onChange={(event): void => {
+              const cost = +event.target.value;
+              const tmpDish: DishDTO = {
+                ...dish,
+                cost,
+              };
+              setDish(tmpDish);
             }}
           />
         </Box>
@@ -420,49 +466,15 @@ export const DishEdit = (): ReactElement => {
         justifyContent="flex-end"
         my="30px"
       >
-        <Button variant="contained" color="primary">
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          onClick={handleCreateDish}
+        >
           Thêm món
         </Button>
       </Box>
     </Paper>
   );
 };
-
-const unitsData = [
-  {
-    id: 1,
-    name: 'xao',
-  },
-  {
-    id: 2,
-    name: 'hap',
-  },
-  {
-    id: 3,
-    name: 'chien',
-  },
-  {
-    id: 4,
-    name: 'xao',
-  },
-  {
-    id: 5,
-    name: 'hap',
-  },
-  {
-    id: 6,
-    name: 'chien',
-  },
-  {
-    id: 7,
-    name: 'xao',
-  },
-  {
-    id: 8,
-    name: 'hap',
-  },
-  {
-    id: 9,
-    name: 'chien',
-  },
-];

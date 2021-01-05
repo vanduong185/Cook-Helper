@@ -4,6 +4,7 @@ import { Tool } from '../database/models/Tool';
 
 export class ToolController {
   database: Database;
+
   constructor() {
     this.database = global.database;
     this.init();

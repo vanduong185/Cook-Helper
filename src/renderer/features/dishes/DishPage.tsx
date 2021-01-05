@@ -1,9 +1,21 @@
 import { Container, Box, Button, Modal } from '@material-ui/core';
 import { Add } from '@material-ui/icons';
 import React, { ReactElement } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppState } from '../../store/store';
 import { DishEdit } from './components/DishEdit';
+import { getDishes } from './DishSlice';
 
 export const DishPage = (): ReactElement => {
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    dispatch(getDishes());
+  }, [dispatch]);
+
+  const dishes = useSelector((state: AppState) => state.dishes);
+  console.log(dishes);
+
   const [openEditModal, setOpenEditModal] = React.useState(false);
 
   const handleOpenEditModal = (): void => {
