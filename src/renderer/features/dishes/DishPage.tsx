@@ -20,7 +20,6 @@ export const DishPage = (): ReactElement => {
   }, [dispatch]);
 
   const dishes = useSelector((state: AppState) => state.dishes);
-  console.log(dishes);
 
   const handleOpenEditModal = (): void => {
     setOpenEditModal(true);

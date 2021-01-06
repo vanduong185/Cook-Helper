@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
 import { Database } from '../database/Database';
+import { DishTool } from '../database/models/DishTool';
 import { Tool } from '../database/models/Tool';
 
 export class ToolController {
@@ -52,8 +53,15 @@ export class ToolController {
     ipcMain.handle(
       'tool-delete',
       async (_event, tool: Tool): Promise<Tool> => {
-        const toolRepo = this.database.connection.getRepository(Tool);
+        const dishToolRepo = this.database.connection.getRepository(DishTool);
+        await dishToolRepo
+          .createQueryBuilder()
+          .delete()
+          .from(DishTool)
+          .where('toolId = :toolId', { toolId: tool.id })
+          .execute();
 
+        const toolRepo = this.database.connection.getRepository(Tool);
         await toolRepo
           .createQueryBuilder()
           .delete()
