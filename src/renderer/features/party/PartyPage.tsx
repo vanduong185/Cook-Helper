@@ -7,6 +7,7 @@ import {
   Theme,
 } from '@material-ui/core';
 import React, { ReactElement } from 'react';
+import { AddMenuButton } from './components/AddMenuButton';
 import { MenuBox } from './components/MenuBox';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -43,6 +44,7 @@ export const PartyPage = (): ReactElement => {
         alignItems="center"
       >
         <MenuBox></MenuBox>
+        <AddMenuButton></AddMenuButton>
       </Box>
     </Container>
   );
