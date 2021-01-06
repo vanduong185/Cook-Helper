@@ -3,12 +3,16 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 import { App } from './App';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core';
+import { viVN } from '@material-ui/core/locale';
 
-// import './index.css';
+const theme = createMuiTheme(undefined, viVN);
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
   </Provider>,
   document.getElementById('root'),
 );

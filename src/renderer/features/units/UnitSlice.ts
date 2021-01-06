@@ -10,7 +10,7 @@ export const getUnits = createAsyncThunk('unit/getAll', async () => {
 const initUnits: UnitDTO[] = [];
 
 const unitSlice = createSlice({
-  name: 'item',
+  name: 'unit',
   initialState: initUnits,
   reducers: {},
   extraReducers: {

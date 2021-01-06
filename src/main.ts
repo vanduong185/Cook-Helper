@@ -1,4 +1,6 @@
 import { app, BrowserWindow } from 'electron';
+import { CookTypeController } from './controllers/CookTypeController';
+import { DishController } from './controllers/DishController';
 import { ItemController } from './controllers/ItemController';
 import { ToolController } from './controllers/ToolController';
 import { UnitController } from './controllers/UnitController';
@@ -14,7 +16,7 @@ if (require('electron-squirrel-startup')) {
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1200,
+    width: 1600,
     height: 900,
     backgroundColor: 'white',
     webPreferences: {
@@ -40,6 +42,8 @@ const initControllers = (): void => {
   new UnitController();
   new ItemController();
   new ToolController();
+  new CookTypeController();
+  new DishController();
 };
 
 // This method will be called when Electron has finished

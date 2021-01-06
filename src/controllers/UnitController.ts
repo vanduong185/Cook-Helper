@@ -4,6 +4,7 @@ import { Unit } from '../database/models/Unit';
 
 export class UnitController {
   database: Database;
+
   constructor() {
     this.database = global.database;
     this.init();
