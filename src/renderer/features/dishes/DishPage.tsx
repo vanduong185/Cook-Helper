@@ -4,7 +4,7 @@ import React, { ReactElement } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../../store/store';
 import { DishEdit } from './components/DishEdit';
-import { getDishes } from './DishSlice';
+import { deleteDish, getDishes } from './DishSlice';
 import { DataGrid, CellParams } from '@material-ui/data-grid';
 import { CookTypeDTO } from '../../dto/CookTypeDTO';
 
@@ -18,6 +18,7 @@ export const DishPage = (): ReactElement => {
   }, [dispatch]);
 
   const dishes = useSelector((state: AppState) => state.dishes);
+  console.log(dishes);
 
   const handleOpenEditModal = (): void => {
     setOpenEditModal(true);
@@ -25,6 +26,11 @@ export const DishPage = (): ReactElement => {
 
   const handleCloseEditModal = (): void => {
     setOpenEditModal(false);
+  };
+
+  const handleDeleteClick = (dishId: number): void => {
+    const dish = dishes.find((d) => d.id === dishId);
+    dispatch(deleteDish(dish));
   };
 
   return (
@@ -85,7 +91,11 @@ export const DishPage = (): ReactElement => {
                     <IconButton>
                       <Edit color="primary" fontSize="small"></Edit>
                     </IconButton>
-                    <IconButton>
+                    <IconButton
+                      onClick={(): void => {
+                        handleDeleteClick(params.row.id as number);
+                      }}
+                    >
                       <Delete color="secondary" fontSize="small"></Delete>
                     </IconButton>
                   </Box>

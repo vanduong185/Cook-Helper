@@ -88,5 +88,38 @@ export class DishController {
         return newDish;
       },
     );
+
+    ipcMain.handle(
+      'dish-delete',
+      async (_event, dish: Dish): Promise<Dish> => {
+        const dishRecipeRepo = this.database.connection.getRepository(
+          DishRecipe,
+        );
+        await dishRecipeRepo
+          .createQueryBuilder()
+          .delete()
+          .from(DishRecipe)
+          .where('dishId = :dishId', { dishId: dish.id })
+          .execute();
+
+        const dishToolRepo = this.database.connection.getRepository(DishTool);
+        await dishToolRepo
+          .createQueryBuilder()
+          .delete()
+          .from(DishTool)
+          .where('dishId = :dishId', { dishId: dish.id })
+          .execute();
+
+        const dishRepo = this.database.connection.getRepository(Dish);
+        await dishRepo
+          .createQueryBuilder()
+          .delete()
+          .from(Dish)
+          .where('id = :id', { id: dish.id })
+          .execute();
+
+        return dish;
+      },
+    );
   }
 }

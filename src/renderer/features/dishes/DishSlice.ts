@@ -19,6 +19,17 @@ export const getDishes = createAsyncThunk(
   },
 );
 
+export const deleteDish = createAsyncThunk(
+  'dish/delete',
+  async (dish: DishDTO): Promise<DishDTO> => {
+    const deletedDish = (await ipcRenderer.invoke(
+      'dish-delete',
+      dish,
+    )) as DishDTO;
+    return deletedDish;
+  },
+);
+
 const initDishes: DishDTO[] = [];
 const dishSlice = createSlice({
   name: 'dish',
@@ -30,6 +41,11 @@ const dishSlice = createSlice({
     },
     [addDish.fulfilled.toString()]: (state, action): void => {
       state.push(action.payload as DishDTO);
+    },
+    [deleteDish.fulfilled.toString()]: (state, action): void => {
+      const deletedDish = action.payload as DishDTO;
+      const index = state.findIndex((i) => i.id === deletedDish.id);
+      state.splice(index, 1);
     },
   },
 });
