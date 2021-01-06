@@ -19,7 +19,7 @@ export class Tool {
   @Column()
   size: string;
 
-  @ManyToOne(() => Unit, (unit) => unit.items)
+  @ManyToOne(() => Unit, (unit) => unit.tools)
   unit: Unit;
 
   @OneToMany(() => DishTool, (dishTool) => dishTool.tool)

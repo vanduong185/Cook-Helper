@@ -6,6 +6,7 @@ import { DishRecipe } from '../database/models/DishRecipe';
 import { DishTool } from '../database/models/DishTool';
 import { Item } from '../database/models/Item';
 import { Tool } from '../database/models/Tool';
+import { Unit } from '../database/models/Unit';
 
 export class DishController {
   database: Database;
@@ -35,23 +36,30 @@ export class DishController {
             'dishRecipe',
             'dish.id = dishRecipe.dishId',
           )
-          .leftJoinAndMapMany(
+          .leftJoinAndMapOne(
             'dishRecipe.item',
             Item,
             'item',
             'item.id = dishRecipe.itemId',
           )
+          .leftJoinAndMapOne('item.unit', Unit, 'unit', 'item.unitId = unit.id')
           .leftJoinAndMapMany(
             'dish.dishTools',
             DishTool,
             'dishTool',
             'dish.id = dishTool.dishId',
           )
-          .leftJoinAndMapMany(
+          .leftJoinAndMapOne(
             'dishTool.tool',
             Tool,
             'tool',
             'tool.id = dishTool.toolId',
+          )
+          .leftJoinAndMapOne(
+            'tool.unit',
+            Unit,
+            'unit2',
+            'tool.unitId = unit2.id',
           )
           .getMany();
 
@@ -86,6 +94,61 @@ export class DishController {
         });
 
         return newDish;
+      },
+    );
+
+    ipcMain.handle(
+      'dish-update',
+      async (_event, dish: Dish): Promise<boolean> => {
+        const dishRepo = this.database.connection.getRepository(Dish);
+
+        await dishRepo
+          .createQueryBuilder()
+          .update(Dish)
+          .set({
+            name: dish.name,
+            mainIngredient: dish.mainIngredient,
+            cookType: dish.cookType,
+            cost: dish.cost,
+          })
+          .where('id = :id', { id: dish.id })
+          .execute();
+
+        // delete all recipes and add new recipes
+        const dishRecipeRepo = this.database.connection.getRepository(
+          DishRecipe,
+        );
+        await dishRecipeRepo
+          .createQueryBuilder()
+          .delete()
+          .from(DishRecipe)
+          .where('dishId = :dishId', { dishId: dish.id })
+          .execute();
+        dish.dishRecipes.forEach(async (recipe) => {
+          recipe.dish = dish;
+          recipe.dishId = dish.id;
+          recipe.itemId = recipe.item.id;
+
+          await dishRecipeRepo.save(recipe);
+        });
+
+        // delete all tools and add new tools
+        const dishToolRepo = this.database.connection.getRepository(DishTool);
+        await dishToolRepo
+          .createQueryBuilder()
+          .delete()
+          .from(DishTool)
+          .where('dishId = :dishId', { dishId: dish.id })
+          .execute();
+        dish.dishTools.forEach(async (dishTool) => {
+          dishTool.dish = dish;
+          dishTool.dishId = dish.id;
+          dishTool.toolId = dishTool.tool.id;
+
+          await dishToolRepo.save(dishTool);
+        });
+
+        return true;
       },
     );
 

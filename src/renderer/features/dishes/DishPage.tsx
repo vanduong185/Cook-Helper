@@ -7,9 +7,11 @@ import { DishEdit } from './components/DishEdit';
 import { deleteDish, getDishes } from './DishSlice';
 import { DataGrid, CellParams } from '@material-ui/data-grid';
 import { CookTypeDTO } from '../../dto/CookTypeDTO';
+import { DishDTO } from '../../dto/DishDTO';
 
 export const DishPage = (): ReactElement => {
   const [openEditModal, setOpenEditModal] = React.useState(false);
+  const [selectedDish, setSelectedDish] = React.useState<DishDTO>();
 
   const dispatch = useDispatch();
 
@@ -26,6 +28,13 @@ export const DishPage = (): ReactElement => {
 
   const handleCloseEditModal = (): void => {
     setOpenEditModal(false);
+    setSelectedDish(undefined);
+  };
+
+  const handleEditClick = (dishId: number): void => {
+    const dish = dishes.find((d) => d.id === dishId);
+    setSelectedDish(dish);
+    setOpenEditModal(true);
   };
 
   const handleDeleteClick = (dishId: number): void => {
@@ -88,7 +97,11 @@ export const DishPage = (): ReactElement => {
               renderCell: (params: CellParams): ReactElement => {
                 return (
                   <Box display="flex" flexDirection="row">
-                    <IconButton>
+                    <IconButton
+                      onClick={(): void => {
+                        handleEditClick(params.row.id as number);
+                      }}
+                    >
                       <Edit color="primary" fontSize="small"></Edit>
                     </IconButton>
                     <IconButton
@@ -120,7 +133,11 @@ export const DishPage = (): ReactElement => {
         aria-describedby="simple-modal-description"
       >
         <>
-          <DishEdit onClose={handleCloseEditModal}></DishEdit>
+          <DishEdit
+            onClose={handleCloseEditModal}
+            dish={selectedDish}
+            isEdit={!!selectedDish}
+          ></DishEdit>
         </>
       </Modal>
     </Container>

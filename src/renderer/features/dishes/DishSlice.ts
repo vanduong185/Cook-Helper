@@ -19,6 +19,17 @@ export const getDishes = createAsyncThunk(
   },
 );
 
+export const updateDish = createAsyncThunk(
+  'dish/update',
+  async (dish: DishDTO): Promise<DishDTO> => {
+    const isSuccess = (await ipcRenderer.invoke(
+      'dish-update',
+      dish,
+    )) as boolean;
+    return isSuccess && dish;
+  },
+);
+
 export const deleteDish = createAsyncThunk(
   'dish/delete',
   async (dish: DishDTO): Promise<DishDTO> => {
@@ -41,6 +52,11 @@ const dishSlice = createSlice({
     },
     [addDish.fulfilled.toString()]: (state, action): void => {
       state.push(action.payload as DishDTO);
+    },
+    [updateDish.fulfilled.toString()]: (state, action): void => {
+      const updatedDish = action.payload as DishDTO;
+      const index = state.findIndex((i) => i.id === updatedDish.id);
+      state[index] = updatedDish;
     },
     [deleteDish.fulfilled.toString()]: (state, action): void => {
       const deletedDish = action.payload as DishDTO;

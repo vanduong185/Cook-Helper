@@ -24,7 +24,7 @@ import { getTools } from '../../tools/ToolSlice';
 import { DishToolDTO } from '../../../dto/DishToolDTO';
 import { ToolDTO } from '../../../dto/ToolDTO';
 import { getCookTypes } from '../../cook-types/CookTypeSlice';
-import { addDish } from '../DishSlice';
+import { addDish, updateDish } from '../DishSlice';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -49,6 +49,7 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   onClose: () => void;
   isEdit?: boolean;
+  dish?: DishDTO;
 }
 
 export const DishEdit = (props: Props): ReactElement => {
@@ -66,18 +67,20 @@ export const DishEdit = (props: Props): ReactElement => {
   const items = useSelector((state: AppState) => state.items);
   const tools = useSelector((state: AppState) => state.tools);
 
-  const [dish, setDish] = React.useState<DishDTO>({
-    id: undefined,
-    name: '',
-    mainIngredient: '',
-    cookType: {
+  const [dish, setDish] = React.useState<DishDTO>(
+    props.dish || {
       id: undefined,
-      name: undefined,
+      name: '',
+      mainIngredient: '',
+      cookType: {
+        id: undefined,
+        name: undefined,
+      },
+      cost: undefined,
+      dishRecipes: [],
+      dishTools: [],
     },
-    cost: undefined,
-    dishRecipes: [],
-    dishTools: [],
-  });
+  );
 
   const [newRecipe, setNewRecipe] = React.useState<DishRecipeDTO>({
     item: undefined,
@@ -100,7 +103,7 @@ export const DishEdit = (props: Props): ReactElement => {
     }
 
     const tmpDish: DishDTO = { ...dish };
-    tmpDish.dishRecipes.push(newRecipe);
+    tmpDish.dishRecipes = tmpDish.dishRecipes.concat([newRecipe]);
     setDish(tmpDish);
 
     // clear item name combo-box
@@ -113,7 +116,7 @@ export const DishEdit = (props: Props): ReactElement => {
 
   const handleRemoveItem = (index: number): void => {
     const tmpDish: DishDTO = { ...dish };
-    tmpDish.dishRecipes.splice(index, 1);
+    tmpDish.dishRecipes = tmpDish.dishRecipes.filter((re, i) => i !== index);
     setDish(tmpDish);
   };
 
@@ -123,7 +126,7 @@ export const DishEdit = (props: Props): ReactElement => {
     }
 
     const tmpDish: DishDTO = { ...dish };
-    tmpDish.dishTools.push(newTool);
+    tmpDish.dishTools = tmpDish.dishTools.concat([newTool]);
     setDish(tmpDish);
 
     // clear item name combo-box
@@ -136,7 +139,7 @@ export const DishEdit = (props: Props): ReactElement => {
 
   const handleRemoveTool = (index: number): void => {
     const tmpDish: DishDTO = { ...dish };
-    tmpDish.dishTools.splice(index, 1);
+    tmpDish.dishTools = tmpDish.dishTools.filter((tool, i) => i !== index);
     setDish(tmpDish);
   };
 
@@ -145,9 +148,14 @@ export const DishEdit = (props: Props): ReactElement => {
     props.onClose();
   };
 
+  const handleUpdateDish = (): void => {
+    dispatch(updateDish(dish));
+    props.onClose();
+  };
+
   return (
     <Paper className={classes.paper}>
-      <h1>Thêm món ăn mới</h1>
+      <h1>{props.isEdit ? 'Sửa món ăn' : 'Thêm món ăn mới'}</h1>
       <Divider></Divider>
       <Box display="flex" flexDirection="row">
         <Box my="30px" mr="30px">
@@ -424,11 +432,11 @@ export const DishEdit = (props: Props): ReactElement => {
         </Box>
 
         <Box>
-          {dish.dishTools.map((tool, index) => (
+          {dish.dishTools.map((dishTool, index) => (
             <ListItem key={index} button>
               <Box display="flex" flexDirection="row" alignItems="center">
                 <span className={clsx(classes.textBold, classes.titleSpan)}>
-                  {tool.tool.name}
+                  {dishTool.tool.name}
                 </span>
                 <Box
                   className={clsx(classes.textBold)}
@@ -438,8 +446,8 @@ export const DishEdit = (props: Props): ReactElement => {
                   flexDirection="row"
                   justifyContent="space-between"
                 >
-                  <span>{tool.amount}</span>
-                  <span>{tool.tool.unit.name}</span>
+                  <span>{dishTool.amount}</span>
+                  <span>{dishTool.tool.unit.name}</span>
                 </Box>
                 <IconButton
                   color="secondary"
@@ -469,9 +477,9 @@ export const DishEdit = (props: Props): ReactElement => {
           variant="contained"
           color="primary"
           size="large"
-          onClick={handleCreateDish}
+          onClick={props.isEdit ? handleUpdateDish : handleCreateDish}
         >
-          Thêm món
+          {props.isEdit ? 'Lưu' : 'Thêm món'}
         </Button>
       </Box>
     </Paper>
