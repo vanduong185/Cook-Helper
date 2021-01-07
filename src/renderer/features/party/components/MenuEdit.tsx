@@ -70,13 +70,13 @@ export const MenuEdit = (props: Props): ReactElement => {
 
   const handleAddDish = (dish: DishDTO): void => {
     const tmpMenu = { ...menu };
-    tmpMenu.dishes.push(dish);
+    tmpMenu.dishes = tmpMenu.dishes.concat([dish]);
     setMenu(tmpMenu);
   };
 
   const handleRemoveDish = (index: number): void => {
     const tmpMenu = { ...menu };
-    tmpMenu.dishes.splice(index, 1);
+    tmpMenu.dishes = tmpMenu.dishes.filter((dish, i) => i !== index);
     setMenu(tmpMenu);
   };
 

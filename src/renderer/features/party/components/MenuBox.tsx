@@ -67,8 +67,9 @@ export const MenuBox = (props: Props): ReactElement => {
       <IconButton
         color="secondary"
         size="small"
-        className={classes.closeButton}
-        onClick={(): void => {
+        // className={classes.closeButton}
+        onClick={(event): void => {
+          event.stopPropagation();
           props.onRemoveClick();
         }}
       >
