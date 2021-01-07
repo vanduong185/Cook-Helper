@@ -10,6 +10,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { Cancel } from '@material-ui/icons';
+import { MenuDTO } from '../../../dto/MenuDTO';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -43,26 +44,44 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export const MenuBox = (): ReactElement => {
+interface Props {
+  menu: MenuDTO;
+  onRemoveClick?: () => void;
+  onClick?: () => void;
+}
+
+export const MenuBox = (props: Props): ReactElement => {
   const classes = useStyles();
 
+  const getMenuPrice = (): number => {
+    let totalPrice = 0;
+    props.menu.dishes.forEach((dish) => {
+      totalPrice += dish.cost;
+    });
+
+    return totalPrice;
+  };
+
   return (
-    <Paper className={clsx(classes.box)} elevation={2}>
+    <Paper className={clsx(classes.box)} elevation={2} onClick={props.onClick}>
       <IconButton
         color="secondary"
         size="small"
         className={classes.closeButton}
+        onClick={(): void => {
+          props.onRemoveClick();
+        }}
       >
         <Cancel />
       </IconButton>
       <Typography variant="h6" gutterBottom className={classes.title}>
-        Thuc don chinh
+        {props.menu.name}
       </Typography>
 
       <Box display="flex" flexDirection="row" alignItems="center">
-        <Typography variant="subtitle1">18 mon</Typography>
+        <Typography variant="subtitle1">{`${props.menu.dishes.length} món`}</Typography>
         <span style={{ margin: '0px 15px' }}>•</span>
-        <Typography variant="subtitle1">1.500.000$</Typography>
+        <Typography variant="subtitle1">{`${getMenuPrice()}đ`}</Typography>
       </Box>
 
       <Box
@@ -72,7 +91,9 @@ export const MenuBox = (): ReactElement => {
         mt="30px"
         className={classes.boxAmount}
       >
-        <span className={classes.amountText}>So luong: 40 mam</span>
+        <span
+          className={classes.amountText}
+        >{`Số lượng: ${props.menu.setAmount} mâm`}</span>
       </Box>
     </Paper>
   );

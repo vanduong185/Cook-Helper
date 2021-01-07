@@ -6,8 +6,9 @@ import {
   IconButton,
   makeStyles,
   Theme,
+  Typography,
 } from '@material-ui/core';
-import { Cancel } from '@material-ui/icons';
+import { AddCircle, Cancel } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -20,10 +21,28 @@ const useStyles = makeStyles((theme: Theme) =>
       borderStyle: 'dashed',
       borderColor: '#2196f36b',
     },
+    addButton: {
+      width: 100,
+      height: 100,
+      color: theme.palette.info.main,
+    },
+    addIcon: {
+      width: 80,
+      height: 80,
+    },
+    addText: {
+      color: theme.palette.info.main,
+      fontSize: 16,
+      fontWeight: 600,
+    },
   }),
 );
 
-export const AddMenuButton = (): ReactElement => {
+interface Props {
+  onClick: () => void;
+}
+
+export const AddMenuButton = (props: Props): ReactElement => {
   const classes = useStyles();
 
   return (
@@ -31,9 +50,16 @@ export const AddMenuButton = (): ReactElement => {
       className={classes.box}
       m="15px"
       display="flex"
+      flexDirection="column"
       justifyContent="center"
+      alignItems="center"
     >
-      <IconButton></IconButton>
+      <IconButton className={classes.addButton} onClick={props.onClick}>
+        <AddCircle className={classes.addIcon}></AddCircle>
+      </IconButton>
+      <Typography variant="button" className={classes.addText}>
+        THÊM THỰC ĐƠN
+      </Typography>
     </Box>
   );
 };
