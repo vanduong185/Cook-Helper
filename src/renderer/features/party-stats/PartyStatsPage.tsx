@@ -18,6 +18,7 @@ import { ItemStatsDTO } from '../../dto/ItemStatsDTO';
 import { MenuDTO } from '../../dto/MenuDTO';
 import { ToolTable } from './components/ToolTable';
 import { ToolStatsDTO } from '../../dto/ToolStatsDTO';
+import { DishDTO } from '../../dto/DishDTO';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -33,6 +34,7 @@ export const PartyStatsPage = (): ReactElement => {
   const classes = useStyles();
   const history = useHistory();
   const [selectedMenuIndex, setSelectedMenuIndex] = React.useState<number>(-1);
+  const [selectedDishId, setSelectedDishId] = React.useState<number>(undefined);
 
   const partyMenus = useSelector((state: AppState) => state.partyMenus);
 
@@ -92,6 +94,111 @@ export const PartyStatsPage = (): ReactElement => {
     return totalTools;
   };
 
+  const getDishesInMenu = (menus: MenuDTO[]): DishDTO[] => {
+    const totalDishes: DishDTO[] = [];
+
+    menus.forEach((menu) => {
+      menu.dishes.forEach((dish) => {
+        const existDish = totalDishes.find((d) => d.id === dish.id);
+        if (existDish) {
+          return;
+        }
+
+        totalDishes.push(dish);
+      });
+    });
+
+    return totalDishes;
+  };
+
+  const renderDishOptions = (): ReactElement[] => {
+    const dishes = getDishesInMenu(
+      selectedMenuIndex === -1 ? partyMenus : [partyMenus[selectedMenuIndex]],
+    );
+
+    return dishes.map((dish) => (
+      <MenuItem key={dish.id} value={dish.id}>
+        {dish.name}
+      </MenuItem>
+    ));
+  };
+
+  const getItemStatsByDishId = (dishId: number): ItemStatsDTO[] => {
+    const listItemStats: ItemStatsDTO[] = [];
+    if (!dishId) {
+      return listItemStats;
+    }
+
+    const menus =
+      selectedMenuIndex === -1 ? partyMenus : [partyMenus[selectedMenuIndex]];
+
+    menus.forEach((menu) => {
+      menu.dishes.forEach((dish) => {
+        if (dish.id !== dishId) {
+          return;
+        }
+
+        dish.dishRecipes.forEach((recipe) => {
+          const itemStats: ItemStatsDTO = {
+            id: recipe.item.id,
+            item: recipe.item,
+            amount: recipe.amount * menu.setAmount,
+          };
+
+          const existItemStats = listItemStats.find(
+            (i) => i.id === itemStats.id,
+          );
+          if (existItemStats) {
+            existItemStats.amount += itemStats.amount;
+            return;
+          }
+
+          listItemStats.push(itemStats);
+        });
+      });
+    });
+
+    return listItemStats;
+  };
+
+  const getToolStatsByDishId = (dishId: number): ToolStatsDTO[] => {
+    const listToolStats: ToolStatsDTO[] = [];
+    if (!dishId) {
+      return listToolStats;
+    }
+
+    const menus =
+      selectedMenuIndex === -1 ? partyMenus : [partyMenus[selectedMenuIndex]];
+
+    menus.forEach((menu) => {
+      menu.dishes.forEach((dish) => {
+        if (dish.id !== dishId) {
+          return;
+        }
+
+        dish.dishTools.forEach((dishTool) => {
+          const toolStats: ToolStatsDTO = {
+            id: dishTool.tool.id,
+            tool: dishTool.tool,
+            amount: dishTool.amount * menu.setAmount,
+          };
+
+          const existToolStats = listToolStats.find(
+            (i) => i.id === toolStats.id,
+          );
+          if (existToolStats) {
+            existToolStats.amount += toolStats.amount;
+            return;
+          }
+
+          listToolStats.push(toolStats);
+        });
+      });
+    });
+
+    return listToolStats;
+  };
+
   return (
     <Container>
       <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -127,6 +234,7 @@ export const PartyStatsPage = (): ReactElement => {
         <TextField
           select
           id="menu-select"
+          label="Chọn thực đơn"
           variant="outlined"
           defaultValue={-1}
           style={{
@@ -134,6 +242,7 @@ export const PartyStatsPage = (): ReactElement => {
           }}
           onChange={(event): void => {
             setSelectedMenuIndex(+event.target.value);
+            setSelectedDishId(undefined);
           }}
         >
           <MenuItem key={-1} value={-1}>
@@ -148,6 +257,7 @@ export const PartyStatsPage = (): ReactElement => {
       </Box>
 
       <Box my="30px">
+        <h4>Tổng nguyên liệu cần</h4>
         <ItemTable
           itemStats={getItemStats(
             selectedMenuIndex === -1
@@ -158,6 +268,7 @@ export const PartyStatsPage = (): ReactElement => {
       </Box>
 
       <Box my="30px">
+        <h4>Tổng dụng cụ cần</h4>
         <ToolTable
           toolStats={getToolStats(
             selectedMenuIndex === -1
@@ -165,6 +276,35 @@ export const PartyStatsPage = (): ReactElement => {
               : [partyMenus[selectedMenuIndex]],
           )}
         ></ToolTable>
+      </Box>
+
+      <Box display="flex" alignItems="center" mt="60px">
+        <span className={classes.labelBig}>Xem theo món</span>
+        <TextField
+          select
+          id="dish-select"
+          label="Chọn món"
+          variant="outlined"
+          style={{
+            width: 300,
+          }}
+          value={selectedDishId || ''}
+          onChange={(event): void => {
+            setSelectedDishId(+event.target.value);
+          }}
+        >
+          {renderDishOptions()}
+        </TextField>
+      </Box>
+
+      <Box my="30px">
+        <h4>Tổng nguyên liệu cho món này</h4>
+        <ItemTable itemStats={getItemStatsByDishId(selectedDishId)}></ItemTable>
+      </Box>
+
+      <Box my="30px">
+        <h4>Tổng dụng cụ cho món này</h4>
+        <ToolTable toolStats={getToolStatsByDishId(selectedDishId)}></ToolTable>
       </Box>
     </Container>
   );
