@@ -8,14 +8,18 @@ import {
   makeStyles,
   MenuItem,
   TextField,
-  Theme,
 } from '@material-ui/core';
 import { ArrowBack } from '@material-ui/icons';
 import { useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { AppState } from '../../store/store';
+import { ItemTable } from './components/ItemTable';
+import { ItemStatsDTO } from '../../dto/ItemStatsDTO';
+import { MenuDTO } from '../../dto/MenuDTO';
+import { ToolTable } from './components/ToolTable';
+import { ToolStatsDTO } from '../../dto/ToolStatsDTO';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     labelBig: {
       fontSize: 18,
@@ -28,11 +32,64 @@ const useStyles = makeStyles((theme: Theme) =>
 export const PartyStatsPage = (): ReactElement => {
   const classes = useStyles();
   const history = useHistory();
+  const [selectedMenuIndex, setSelectedMenuIndex] = React.useState<number>(-1);
 
   const partyMenus = useSelector((state: AppState) => state.partyMenus);
 
   const handleGoBack = (): void => {
     history.goBack();
+  };
+
+  const getItemStats = (menus: MenuDTO[]): ItemStatsDTO[] => {
+    const totalItems: ItemStatsDTO[] = [];
+
+    menus.forEach((menu) => {
+      menu.dishes.forEach((dish) => {
+        dish.dishRecipes.forEach((recipe) => {
+          const itemStats: ItemStatsDTO = {
+            id: recipe.item.id,
+            item: recipe.item,
+            amount: recipe.amount * menu.setAmount,
+          };
+
+          const existItemStats = totalItems.find((i) => i.id === itemStats.id);
+          if (existItemStats) {
+            existItemStats.amount += itemStats.amount;
+            return;
+          }
+
+          totalItems.push(itemStats);
+        });
+      });
+    });
+
+    return totalItems;
+  };
+
+  const getToolStats = (menus: MenuDTO[]): ToolStatsDTO[] => {
+    const totalTools: ToolStatsDTO[] = [];
+
+    menus.forEach((menu) => {
+      menu.dishes.forEach((dish) => {
+        dish.dishTools.forEach((dishTool) => {
+          const toolStats: ToolStatsDTO = {
+            id: dishTool.tool.id,
+            tool: dishTool.tool,
+            amount: dishTool.amount * menu.setAmount,
+          };
+
+          const existToolStats = totalTools.find((t) => t.id === toolStats.id);
+          if (existToolStats) {
+            existToolStats.amount += toolStats.amount;
+            return;
+          }
+
+          totalTools.push(toolStats);
+        });
+      });
+    });
+
+    return totalTools;
   };
 
   return (
@@ -75,6 +132,9 @@ export const PartyStatsPage = (): ReactElement => {
           style={{
             width: 300,
           }}
+          onChange={(event): void => {
+            setSelectedMenuIndex(+event.target.value);
+          }}
         >
           <MenuItem key={-1} value={-1}>
             Tất cả thực đơn
@@ -85,6 +145,26 @@ export const PartyStatsPage = (): ReactElement => {
             </MenuItem>
           ))}
         </TextField>
+      </Box>
+
+      <Box my="30px">
+        <ItemTable
+          itemStats={getItemStats(
+            selectedMenuIndex === -1
+              ? partyMenus
+              : [partyMenus[selectedMenuIndex]],
+          )}
+        ></ItemTable>
+      </Box>
+
+      <Box my="30px">
+        <ToolTable
+          toolStats={getToolStats(
+            selectedMenuIndex === -1
+              ? partyMenus
+              : [partyMenus[selectedMenuIndex]],
+          )}
+        ></ToolTable>
       </Box>
     </Container>
   );

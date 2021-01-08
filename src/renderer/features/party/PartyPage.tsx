@@ -6,7 +6,6 @@ import {
   Divider,
   makeStyles,
   Modal,
-  Theme,
 } from '@material-ui/core';
 import { ArrowForward, Replay } from '@material-ui/icons';
 import React, { ReactElement } from 'react';
