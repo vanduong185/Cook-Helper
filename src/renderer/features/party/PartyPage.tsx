@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Container,
   createStyles,
   Divider,
@@ -7,14 +8,16 @@ import {
   Modal,
   Theme,
 } from '@material-ui/core';
+import { ArrowForward, Replay } from '@material-ui/icons';
 import React, { ReactElement } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { MenuDTO } from '../../dto/MenuDTO';
 import { AppState } from '../../store/store';
 import { AddMenuButton } from './components/AddMenuButton';
 import { MenuBox } from './components/MenuBox';
 import { MenuEdit } from './components/MenuEdit';
-import { removeMenuFromParty } from './PartySlice';
+import { removeMenuFromParty, resetMenuFromParty } from './PartySlice';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -27,6 +30,7 @@ const useStyles = makeStyles(() =>
 
 export const PartyPage = (): ReactElement => {
   const classes = useStyles();
+  const history = useHistory();
   const [openEditModal, setOpenEditModal] = React.useState(false);
   const [selectedMenu, setSelectedMenu] = React.useState<MenuDTO>(undefined);
   const [selectedIndexMenu, setSelectedIndexMenu] = React.useState<number>(
@@ -55,6 +59,15 @@ export const PartyPage = (): ReactElement => {
     setSelectedIndexMenu(index);
     setSelectedMenu(menu);
     setOpenEditModal(true);
+  };
+
+  const handleResetParty = (): void => {
+    dispatch(resetMenuFromParty());
+  };
+
+  const handleShowStats = (): void => {
+    console.log('show');
+    history.push('/party-stats');
   };
 
   return (
@@ -92,6 +105,34 @@ export const PartyPage = (): ReactElement => {
         ))}
         <AddMenuButton onClick={handleOpenEditModal}></AddMenuButton>
       </Box>
+
+      <Box
+        display="flex"
+        flexDirection="row"
+        justifyContent="flex-end"
+        my="50px"
+      >
+        <Button
+          variant="outlined"
+          color="primary"
+          style={{ margin: '0px 15px' }}
+          onClick={handleResetParty}
+        >
+          <Replay></Replay>
+          Tạo lại
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          style={{ margin: '0px 15px' }}
+          disabled={partyMenus.length <= 0}
+          onClick={handleShowStats}
+        >
+          Xem thống kê nguyên liệu
+          <ArrowForward></ArrowForward>
+        </Button>
+      </Box>
+
       <Modal
         id="edit-menu-modal"
         open={openEditModal}

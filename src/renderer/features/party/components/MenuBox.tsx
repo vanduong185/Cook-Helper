@@ -20,6 +20,9 @@ const useStyles = makeStyles((theme: Theme) =>
       height: '200px',
       padding: theme.spacing(2, 4, 3),
       margin: '15px',
+      '&:hover': {
+        cursor: 'pointer',
+      },
     },
     closeButton: {
       position: 'absolute',
@@ -67,7 +70,7 @@ export const MenuBox = (props: Props): ReactElement => {
       <IconButton
         color="secondary"
         size="small"
-        // className={classes.closeButton}
+        className={classes.closeButton}
         onClick={(event): void => {
           event.stopPropagation();
           props.onRemoveClick();

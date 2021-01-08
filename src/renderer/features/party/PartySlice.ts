@@ -18,6 +18,7 @@ const partySlice = createSlice({
       const index = action.payload.index as number;
       state[index] = menu;
     },
+    resetMenuFromParty: (): MenuDTO[] => initMenus,
   },
 });
 
@@ -25,5 +26,6 @@ export const {
   addMenuToParty,
   removeMenuFromParty,
   updateMenuFromParty,
+  resetMenuFromParty,
 } = partySlice.actions;
 export const PartyReducer = partySlice.reducer;
