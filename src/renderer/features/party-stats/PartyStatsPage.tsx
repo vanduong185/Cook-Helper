@@ -199,6 +199,41 @@ export const PartyStatsPage = (): ReactElement => {
     return listToolStats;
   };
 
+  const getMenuPrice = (menu: MenuDTO): number => {
+    let totalPrice = 0;
+    menu.dishes.forEach((dish) => {
+      totalPrice += dish.cost;
+    });
+
+    return totalPrice;
+  };
+
+  const renderMenuInfo = (): ReactElement => {
+    if (selectedMenuIndex === -1) {
+      return <></>;
+    }
+
+    const menu = partyMenus[selectedMenuIndex];
+    return (
+      <Box display="flex">
+        <Box display="flex" alignItems="center" mr="30px">
+          <span style={{ margin: '5px 10px 5px 0px' }}>Số lượng món:</span>
+          <span className={classes.labelBig}>{menu.dishes.length}</span>
+        </Box>
+
+        <Box display="flex" alignItems="center" mr="30px">
+          <span style={{ margin: '5px 10px 5px 0px' }}>Giá thực đơn:</span>
+          <span className={classes.labelBig}>{`${getMenuPrice(menu)}đ`}</span>
+        </Box>
+
+        <Box display="flex" alignItems="center" mr="30px">
+          <span style={{ margin: '5px 10px 5px 0px' }}>Số mâm:</span>
+          <span className={classes.labelBig}>{menu.setAmount}</span>
+        </Box>
+      </Box>
+    );
+  };
+
   return (
     <Container>
       <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -255,6 +290,8 @@ export const PartyStatsPage = (): ReactElement => {
           ))}
         </TextField>
       </Box>
+
+      {renderMenuInfo()}
 
       <Box my="30px">
         <h4>Tổng nguyên liệu cần</h4>
