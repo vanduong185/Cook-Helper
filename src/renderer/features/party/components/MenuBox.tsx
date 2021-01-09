@@ -11,6 +11,7 @@ import {
 } from '@material-ui/core';
 import { Cancel } from '@material-ui/icons';
 import { MenuDTO } from '../../../dto/MenuDTO';
+import { Utils } from '../../../utils/Utils';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -57,12 +58,7 @@ export const MenuBox = (props: Props): ReactElement => {
   const classes = useStyles();
 
   const getMenuPrice = (): number => {
-    let totalPrice = 0;
-    props.menu.dishes.forEach((dish) => {
-      totalPrice += dish.cost;
-    });
-
-    return totalPrice;
+    return Utils.getMenuPrice(props.menu);
   };
 
   return (

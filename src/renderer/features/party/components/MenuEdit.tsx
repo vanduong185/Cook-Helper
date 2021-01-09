@@ -22,6 +22,7 @@ import { MenuDTO } from '../../../dto/MenuDTO';
 
 import './MenuEdit.css';
 import { addMenuToParty, updateMenuFromParty } from '../PartySlice';
+import { Utils } from '../../../utils/Utils';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -60,12 +61,7 @@ export const MenuEdit = (props: Props): ReactElement => {
   const dishes = useSelector((state: AppState) => state.dishes);
 
   const getMenuPrice = (): number => {
-    let totalPrice = 0;
-    menu.dishes.forEach((dish) => {
-      totalPrice += dish.cost;
-    });
-
-    return totalPrice;
+    return Utils.getMenuPrice(menu);
   };
 
   const handleAddDish = (dish: DishDTO): void => {

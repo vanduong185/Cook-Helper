@@ -19,6 +19,8 @@ import { MenuDTO } from '../../dto/MenuDTO';
 import { ToolTable } from './components/ToolTable';
 import { ToolStatsDTO } from '../../dto/ToolStatsDTO';
 import { DishDTO } from '../../dto/DishDTO';
+import { SheetExport } from '../../utils/SheetExport';
+import { Utils } from '../../utils/Utils';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -43,72 +45,15 @@ export const PartyStatsPage = (): ReactElement => {
   };
 
   const getItemStats = (menus: MenuDTO[]): ItemStatsDTO[] => {
-    const totalItems: ItemStatsDTO[] = [];
-
-    menus.forEach((menu) => {
-      menu.dishes.forEach((dish) => {
-        dish.dishRecipes.forEach((recipe) => {
-          const itemStats: ItemStatsDTO = {
-            id: recipe.item.id,
-            item: recipe.item,
-            amount: recipe.amount * menu.setAmount,
-          };
-
-          const existItemStats = totalItems.find((i) => i.id === itemStats.id);
-          if (existItemStats) {
-            existItemStats.amount += itemStats.amount;
-            return;
-          }
-
-          totalItems.push(itemStats);
-        });
-      });
-    });
-
-    return totalItems;
+    return Utils.getItemStats(menus);
   };
 
   const getToolStats = (menus: MenuDTO[]): ToolStatsDTO[] => {
-    const totalTools: ToolStatsDTO[] = [];
-
-    menus.forEach((menu) => {
-      menu.dishes.forEach((dish) => {
-        dish.dishTools.forEach((dishTool) => {
-          const toolStats: ToolStatsDTO = {
-            id: dishTool.tool.id,
-            tool: dishTool.tool,
-            amount: dishTool.amount * menu.setAmount,
-          };
-
-          const existToolStats = totalTools.find((t) => t.id === toolStats.id);
-          if (existToolStats) {
-            existToolStats.amount += toolStats.amount;
-            return;
-          }
-
-          totalTools.push(toolStats);
-        });
-      });
-    });
-
-    return totalTools;
+    return Utils.getToolStats(menus);
   };
 
   const getDishesInMenu = (menus: MenuDTO[]): DishDTO[] => {
-    const totalDishes: DishDTO[] = [];
-
-    menus.forEach((menu) => {
-      menu.dishes.forEach((dish) => {
-        const existDish = totalDishes.find((d) => d.id === dish.id);
-        if (existDish) {
-          return;
-        }
-
-        totalDishes.push(dish);
-      });
-    });
-
-    return totalDishes;
+    return Utils.getDishesInMenu(menus);
   };
 
   const renderDishOptions = (): ReactElement[] => {
@@ -132,33 +77,7 @@ export const PartyStatsPage = (): ReactElement => {
     const menus =
       selectedMenuIndex === -1 ? partyMenus : [partyMenus[selectedMenuIndex]];
 
-    menus.forEach((menu) => {
-      menu.dishes.forEach((dish) => {
-        if (dish.id !== dishId) {
-          return;
-        }
-
-        dish.dishRecipes.forEach((recipe) => {
-          const itemStats: ItemStatsDTO = {
-            id: recipe.item.id,
-            item: recipe.item,
-            amount: recipe.amount * menu.setAmount,
-          };
-
-          const existItemStats = listItemStats.find(
-            (i) => i.id === itemStats.id,
-          );
-          if (existItemStats) {
-            existItemStats.amount += itemStats.amount;
-            return;
-          }
-
-          listItemStats.push(itemStats);
-        });
-      });
-    });
-
-    return listItemStats;
+    return Utils.getItemStatsByDishId(dishId, menus);
   };
 
   const getToolStatsByDishId = (dishId: number): ToolStatsDTO[] => {
@@ -170,42 +89,11 @@ export const PartyStatsPage = (): ReactElement => {
     const menus =
       selectedMenuIndex === -1 ? partyMenus : [partyMenus[selectedMenuIndex]];
 
-    menus.forEach((menu) => {
-      menu.dishes.forEach((dish) => {
-        if (dish.id !== dishId) {
-          return;
-        }
-
-        dish.dishTools.forEach((dishTool) => {
-          const toolStats: ToolStatsDTO = {
-            id: dishTool.tool.id,
-            tool: dishTool.tool,
-            amount: dishTool.amount * menu.setAmount,
-          };
-
-          const existToolStats = listToolStats.find(
-            (i) => i.id === toolStats.id,
-          );
-          if (existToolStats) {
-            existToolStats.amount += toolStats.amount;
-            return;
-          }
-
-          listToolStats.push(toolStats);
-        });
-      });
-    });
-
-    return listToolStats;
+    return Utils.getToolStatsByDishId(dishId, menus);
   };
 
   const getMenuPrice = (menu: MenuDTO): number => {
-    let totalPrice = 0;
-    menu.dishes.forEach((dish) => {
-      totalPrice += dish.cost;
-    });
-
-    return totalPrice;
+    return Utils.getMenuPrice(menu);
   };
 
   const renderMenuInfo = (): ReactElement => {
@@ -234,6 +122,11 @@ export const PartyStatsPage = (): ReactElement => {
     );
   };
 
+  const exportExcel = (): void => {
+    const sheetExport = new SheetExport();
+    sheetExport.export(partyMenus);
+  };
+
   return (
     <Container>
       <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -258,6 +151,7 @@ export const PartyStatsPage = (): ReactElement => {
           style={{
             height: 40,
           }}
+          onClick={exportExcel}
         >
           Xuất Excel
         </Button>
@@ -293,7 +187,7 @@ export const PartyStatsPage = (): ReactElement => {
 
       {renderMenuInfo()}
 
-      <Box my="30px">
+      <Box my="30px" id="test-table">
         <h4>Tổng nguyên liệu cần</h4>
         <ItemTable
           itemStats={getItemStats(
