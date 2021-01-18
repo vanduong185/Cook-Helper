@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import { app } from 'electron';
 import { Connection, createConnection } from 'typeorm';
 import { Item } from './models/Item';
@@ -21,6 +22,7 @@ export class Database {
     // store database.sqlite at USER_DATA folder
     const userDataPath = app.getPath('userData');
     const databasePath = path.join(userDataPath, 'database.sqlite');
+    const existsDatabaseFile = fs.existsSync(databasePath);
 
     this.connection = await createConnection({
       type: 'sqlite',
@@ -30,6 +32,10 @@ export class Database {
       database: databasePath,
       entities: [Unit, Item, Tool, CookType, Dish, DishRecipe, DishTool, Menu],
     });
+
+    if (!existsDatabaseFile) {
+      this.seed();
+    }
   }
 
   public async seed(): Promise<void> {
