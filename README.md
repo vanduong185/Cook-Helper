@@ -7,10 +7,11 @@ Main features are:
 - Make party and calculate needed ingredient, tools.
 
 # Electron Boilerplate
-- Electron-forge (Webpack + Typescript)
+- Electron-forge (Typescript template)
 - React
 - Material-UI
 - SQLite + TypeORM
+- Gulp
 
 ## Install
 `npm install`
@@ -22,4 +23,9 @@ This uses the npm_config_python config, so values in **.npmrc** will be honoured
 `python=/usr/bin/python2`
 
 ## Run
-`npm start`
+1. Compile source code and watch changes: `npm run watch`
+2. Start app: `npm start`
+
+## Release
+`npm run make`
+- For **Windows**, make a Squirrel installer by default.

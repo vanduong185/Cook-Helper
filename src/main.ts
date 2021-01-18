@@ -1,12 +1,11 @@
 import { app, BrowserWindow } from 'electron';
+import * as path from 'path';
 import { CookTypeController } from './controllers/CookTypeController';
 import { DishController } from './controllers/DishController';
 import { ItemController } from './controllers/ItemController';
 import { ToolController } from './controllers/ToolController';
 import { UnitController } from './controllers/UnitController';
 import { Database } from './database/Database';
-
-declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -32,7 +31,7 @@ const createWindow = (): void => {
   initControllers();
 
   // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  mainWindow.loadFile(path.join(__dirname, '../src/index.html'));
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();

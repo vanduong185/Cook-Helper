@@ -20,7 +20,6 @@ import { getDishes } from '../../dishes/DishSlice';
 import { DishItem } from './DishItem';
 import { MenuDTO } from '../../../dto/MenuDTO';
 
-import './MenuEdit.css';
 import { addMenuToParty, updateMenuFromParty } from '../PartySlice';
 import { Utils } from '../../../utils/Utils';
 
