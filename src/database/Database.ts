@@ -25,7 +25,7 @@ export class Database {
     const existsDatabaseFile = fs.existsSync(databasePath);
 
     this.connection = await createConnection({
-      type: 'sqlite',
+      type: 'better-sqlite3',
       synchronize: true,
       logging: true,
       logger: 'simple-console',
