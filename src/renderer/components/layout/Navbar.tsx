@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import clsx from 'clsx';
@@ -21,7 +21,6 @@ import {
   Home,
 } from '@material-ui/icons';
 import { DRAWER_WIDTH } from '../../constants/AppConst';
-
 import { toggleNavbar } from './NavbarSlice';
 import { AppState } from '../../store/store';
 
@@ -94,6 +93,15 @@ const useStyles = makeStyles((theme: Theme) => ({
     color: theme.palette.grey[800],
     fontWeight: 800,
   },
+  activeNavItem: {
+    backgroundColor: theme.palette.primary.main,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main,
+    },
+  },
+  activeNavItemText: {
+    color: 'white',
+  },
 }));
 
 export const Navbar = (): ReactElement => {
@@ -101,6 +109,7 @@ export const Navbar = (): ReactElement => {
   const history = useHistory();
   const open = useSelector((state: AppState) => state.navbar);
   const dispatch = useDispatch();
+  const [activeNavLink, setActiveNavLink] = useState<string>('/');
 
   const handleCloseNavbar = (): void => {
     const action = toggleNavbar(false);
@@ -108,6 +117,7 @@ export const Navbar = (): ReactElement => {
   };
 
   const handleNavItemClick = (link: string): void => {
+    setActiveNavLink(link);
     history.push(link);
   };
 
@@ -125,7 +135,7 @@ export const Navbar = (): ReactElement => {
         </IconButton>
       </div>
       <Divider />
-      <List>
+      <List style={{ padding: '0px' }}>
         {navItemsData.map(
           (navItem, index): ReactElement => (
             <ListItem
@@ -134,10 +144,32 @@ export const Navbar = (): ReactElement => {
               onClick={(): void => {
                 handleNavItemClick(navItem.link);
               }}
+              className={
+                activeNavLink === navItem.link
+                  ? classes.activeNavItem
+                  : undefined
+              }
             >
-              <ListItemIcon>{navItem.icon}</ListItemIcon>
+              <ListItemIcon
+                className={
+                  activeNavLink === navItem.link
+                    ? classes.activeNavItemText
+                    : undefined
+                }
+              >
+                {navItem.icon}
+              </ListItemIcon>
               <ListItemText>
-                <span className={classes.navItemText}>{navItem.title}</span>
+                <span
+                  className={clsx(
+                    classes.navItemText,
+                    activeNavLink === navItem.link
+                      ? classes.activeNavItemText
+                      : undefined,
+                  )}
+                >
+                  {navItem.title}
+                </span>
               </ListItemText>
             </ListItem>
           ),
