@@ -16,7 +16,7 @@ export class Tool {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   size: string;
 
   @ManyToOne(() => Unit, (unit) => unit.tools)
