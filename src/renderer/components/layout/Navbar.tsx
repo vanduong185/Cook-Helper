@@ -107,9 +107,11 @@ const useStyles = makeStyles((theme: Theme) => ({
 export const Navbar = (): ReactElement => {
   const classes = useStyles();
   const history = useHistory();
-  const open = useSelector((state: AppState) => state.navbar);
   const dispatch = useDispatch();
-  const [activeNavLink, setActiveNavLink] = useState<string>('/');
+  const open = useSelector((state: AppState) => state.navbar);
+  const [activeNavLink, setActiveNavLink] = useState<string>(
+    history.location.pathname,
+  );
 
   const handleCloseNavbar = (): void => {
     const action = toggleNavbar(false);
@@ -117,6 +119,10 @@ export const Navbar = (): ReactElement => {
   };
 
   const handleNavItemClick = (link: string): void => {
+    if (link === activeNavLink) {
+      return;
+    }
+
     setActiveNavLink(link);
     history.push(link);
   };
