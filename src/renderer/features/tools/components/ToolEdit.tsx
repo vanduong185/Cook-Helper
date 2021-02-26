@@ -75,10 +75,7 @@ export const ToolEdit = (props: Props): ReactElement => {
   };
 
   const validateToolData = (): boolean => {
-    const errorsTmp: ValidationErrorText = {
-      nameField: undefined,
-      unitField: undefined,
-    };
+    const errorsTmp = { ...errorTexts };
     let isValid = true;
 
     if (!tool.name || tool.name.length <= 0) {
@@ -98,6 +95,44 @@ export const ToolEdit = (props: Props): ReactElement => {
     return isValid;
   };
 
+  const updateName = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const tmpTool: ToolDTO = {
+      ...tool,
+      name: event.target.value,
+    };
+    setTool(tmpTool);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      nameField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
+  const updateSize = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const tmpTool: ToolDTO = {
+      ...tool,
+      size: event.target.value,
+    };
+    setTool(tmpTool);
+  };
+
+  const updateUnit = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const unitId = +event.target.value;
+    const unit = unitsData.find((u) => u.id === unitId);
+    const tmpTool: ToolDTO = {
+      ...tool,
+      unit,
+    };
+    setTool(tmpTool);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      unitField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
   return (
     <Paper className={classes.paper}>
       <h1>{props.isEdit ? 'Sửa dụng cụ' : 'Thêm dụng cụ mới'}</h1>
@@ -105,19 +140,12 @@ export const ToolEdit = (props: Props): ReactElement => {
       <Box my="30px">
         <TextField
           required
-          id="outlined-required"
           label="Tên dụng cụ"
           defaultValue={tool.name}
           placeholder="Nhập tên dụng cụ"
           error={!!errorTexts.nameField}
           helperText={errorTexts.nameField}
-          onChange={(event): void => {
-            const tmpTool: ToolDTO = {
-              ...tool,
-              name: event.target.value,
-            };
-            setTool(tmpTool);
-          }}
+          onChange={updateName}
           variant="outlined"
           style={{
             width: 350,
@@ -127,17 +155,10 @@ export const ToolEdit = (props: Props): ReactElement => {
 
       <Box my="30px">
         <TextField
-          id="outlined-required"
           label="Kích cỡ"
           defaultValue={tool.size}
           placeholder="Nhập kích cỡ"
-          onChange={(event): void => {
-            const tmpTool: ToolDTO = {
-              ...tool,
-              size: event.target.value,
-            };
-            setTool(tmpTool);
-          }}
+          onChange={updateSize}
           variant="outlined"
           style={{
             width: 350,
@@ -154,15 +175,7 @@ export const ToolEdit = (props: Props): ReactElement => {
           value={tool.unit?.id || ''}
           error={!!errorTexts.unitField}
           helperText={errorTexts.unitField}
-          onChange={(event): void => {
-            const unitId = +event.target.value;
-            const unit = unitsData.find((u) => u.id === unitId);
-            const tmpTool: ToolDTO = {
-              ...tool,
-              unit,
-            };
-            setTool(tmpTool);
-          }}
+          onChange={updateUnit}
           style={{
             width: 350,
           }}

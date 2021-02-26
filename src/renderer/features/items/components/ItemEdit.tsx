@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
       width: '750px',
-      height: '500px',
+      height: '550px',
       padding: theme.spacing(2, 4, 3),
       overflow: 'auto',
     },
@@ -40,27 +40,109 @@ export const ItemEdit = (props: Props): ReactElement => {
   }, [dispatch]);
 
   const unitsData = useSelector((state: AppState) => state.units);
+  const [errorTexts, setErrorTexts] = React.useState<ValidationErrorText>({
+    nameField: undefined,
+    providerField: undefined,
+    unitField: undefined,
+  });
 
   const initItem: ItemDTO = props.item || {
     id: undefined,
-    name: '',
-    provider: '',
-    unit: {
-      id: undefined,
-      name: undefined,
-    },
+    name: undefined,
+    provider: undefined,
+    unit: undefined,
   };
 
   const [item, setItem] = React.useState<ItemDTO>(initItem);
 
   const hanleCreateItem = (): void => {
+    const isValid = validateItemData();
+    if (!isValid) {
+      return;
+    }
+
     dispatch(addItem(item));
     props.onClose();
   };
 
   const handleUpdateItem = (): void => {
+    const isValid = validateItemData();
+    if (!isValid) {
+      return;
+    }
+
     dispatch(updateItem(item));
     props.onClose();
+  };
+
+  const validateItemData = (): boolean => {
+    const errorsTmp = { ...errorTexts };
+    let isValid = true;
+
+    if (!item.name || item.name.length <= 0) {
+      errorsTmp.nameField = 'Không được để trống';
+      isValid = false;
+    }
+
+    if (!item.provider || item.provider.length <= 0) {
+      errorsTmp.providerField = 'Không được để trống';
+      isValid = false;
+    }
+
+    if (!item.unit) {
+      errorsTmp.unitField = 'Không được để trống';
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setErrorTexts(errorsTmp);
+    }
+
+    return isValid;
+  };
+
+  const updateName = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const tmpItem: ItemDTO = {
+      ...item,
+      name: event.target.value,
+    };
+    setItem(tmpItem);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      nameField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
+  const updateProvider = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const tmpItem: ItemDTO = {
+      ...item,
+      provider: event.target.value,
+    };
+    setItem(tmpItem);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      providerField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
+  const updateUnit = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const unitId = +event.target.value;
+    const unit = unitsData.find((u) => u.id === unitId);
+    const tmpItem: ItemDTO = {
+      ...item,
+      unit,
+    };
+    setItem(tmpItem);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      unitField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
   };
 
   return (
@@ -70,17 +152,12 @@ export const ItemEdit = (props: Props): ReactElement => {
       <Box my="30px">
         <TextField
           required
-          id="outlined-required"
           label="Tên nguyên liệu"
           defaultValue={item.name}
           placeholder="Nhập tên nguyên liệu"
-          onChange={(event): void => {
-            const tmpItem: ItemDTO = {
-              ...item,
-              name: event.target.value,
-            };
-            setItem(tmpItem);
-          }}
+          error={!!errorTexts.nameField}
+          helperText={errorTexts.nameField}
+          onChange={updateName}
           variant="outlined"
           style={{
             width: 350,
@@ -91,17 +168,12 @@ export const ItemEdit = (props: Props): ReactElement => {
       <Box my="30px">
         <TextField
           required
-          id="outlined-required"
           label="Nguồn cung cấp"
           defaultValue={item.provider}
           placeholder="Nhập nguồn cung cấp"
-          onChange={(event): void => {
-            const tmpItem: ItemDTO = {
-              ...item,
-              provider: event.target.value,
-            };
-            setItem(tmpItem);
-          }}
+          error={!!errorTexts.providerField}
+          helperText={errorTexts.providerField}
+          onChange={updateProvider}
           variant="outlined"
           style={{
             width: 350,
@@ -115,16 +187,10 @@ export const ItemEdit = (props: Props): ReactElement => {
           required
           label="Đơn vị"
           variant="outlined"
-          value={item.unit.id || ''}
-          onChange={(event): void => {
-            const unitId = +event.target.value;
-            const unit = unitsData.find((u) => u.id === unitId);
-            const tmpItem: ItemDTO = {
-              ...item,
-              unit,
-            };
-            setItem(tmpItem);
-          }}
+          value={item.unit?.id || ''}
+          error={!!errorTexts.unitField}
+          helperText={errorTexts.unitField}
+          onChange={updateUnit}
           style={{
             width: 350,
           }}
@@ -149,3 +215,9 @@ export const ItemEdit = (props: Props): ReactElement => {
     </Paper>
   );
 };
+
+interface ValidationErrorText {
+  nameField: string;
+  providerField: string;
+  unitField: string;
+}
