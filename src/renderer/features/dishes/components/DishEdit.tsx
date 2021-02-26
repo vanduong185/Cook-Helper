@@ -70,13 +70,10 @@ export const DishEdit = (props: Props): ReactElement => {
   const [dish, setDish] = React.useState<DishDTO>(
     props.dish || {
       id: undefined,
-      name: '',
-      mainIngredient: '',
-      cookType: {
-        id: undefined,
-        name: undefined,
-      },
-      cost: undefined,
+      name: undefined,
+      mainIngredient: undefined,
+      cookType: undefined,
+      cost: 0,
       dishRecipes: [],
       dishTools: [],
     },
@@ -90,6 +87,13 @@ export const DishEdit = (props: Props): ReactElement => {
   const [newTool, setNewTool] = React.useState<DishToolDTO>({
     tool: undefined,
     amount: undefined,
+  });
+
+  const [errorTexts, setErrorTexts] = React.useState<ValidationErrorText>({
+    nameField: undefined,
+    mainItemField: undefined,
+    cookTypeField: undefined,
+    costField: undefined,
   });
 
   const itemNameFieldRef = React.useRef<HTMLElement>();
@@ -144,13 +148,117 @@ export const DishEdit = (props: Props): ReactElement => {
   };
 
   const handleCreateDish = (): void => {
+    const isValid = validateDishData();
+    if (!isValid) {
+      return;
+    }
+
     dispatch(addDish(dish));
     props.onClose();
   };
 
   const handleUpdateDish = (): void => {
+    const isValid = validateDishData();
+    if (!isValid) {
+      return;
+    }
+
     dispatch(updateDish(dish));
     props.onClose();
+  };
+
+  const validateDishData = (): boolean => {
+    const errorsTmp = { ...errorTexts };
+    let isValid = true;
+
+    if (!dish.name || dish.name.length <= 0) {
+      errorsTmp.nameField = 'Không được để trống';
+      isValid = false;
+    }
+
+    if (!dish.mainIngredient || dish.mainIngredient.length <= 0) {
+      errorsTmp.mainItemField = 'Không được để trống';
+      isValid = false;
+    }
+
+    if (!dish.cookType) {
+      errorsTmp.cookTypeField = 'Không được để trống';
+      isValid = false;
+    }
+
+    if ((!dish.cost && dish.cost !== 0) || dish.cost < 0) {
+      errorsTmp.costField = 'Giá trị không hợp lệ';
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setErrorTexts(errorsTmp);
+    }
+
+    return isValid;
+  };
+
+  const updateDishName = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const name = event.target.value;
+    const tmpDish: DishDTO = {
+      ...dish,
+      name,
+    };
+    setDish(tmpDish);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      nameField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
+  const updateMainIngredient = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
+    const mainIngredient = event.target.value;
+    const tmpDish: DishDTO = {
+      ...dish,
+      mainIngredient,
+    };
+    setDish(tmpDish);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      mainItemField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
+  const updateCookType = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const typeId = +event.target.value;
+    const cookType = cookTypes.find((t) => t.id === typeId);
+    const tmpDish: DishDTO = {
+      ...dish,
+      cookType,
+    };
+    setDish(tmpDish);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      cookTypeField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
+  const updateCost = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const cost = +event.target.value;
+    const tmpDish: DishDTO = {
+      ...dish,
+      cost,
+    };
+    setDish(tmpDish);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      costField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
   };
 
   return (
@@ -161,21 +269,15 @@ export const DishEdit = (props: Props): ReactElement => {
         <Box my="30px" mr="30px">
           <TextField
             required
-            id="outlined-required"
             label="Tên món ăn"
             placeholder="Nhập tên món ăn"
             variant="outlined"
+            defaultValue={dish.name}
+            error={!!errorTexts.nameField}
+            helperText={errorTexts.nameField}
+            onChange={updateDishName}
             style={{
               width: 250,
-            }}
-            defaultValue={dish.name}
-            onChange={(event): void => {
-              const name = event.target.value;
-              const tmpDish: DishDTO = {
-                ...dish,
-                name,
-              };
-              setDish(tmpDish);
             }}
           />
         </Box>
@@ -183,21 +285,15 @@ export const DishEdit = (props: Props): ReactElement => {
         <Box my="30px" mr="30px">
           <TextField
             required
-            id="outlined-required"
             label="Nguyên liệu chính"
             placeholder="Nhập tên nguyên liệu"
             variant="outlined"
+            defaultValue={dish.mainIngredient}
+            error={!!errorTexts.mainItemField}
+            helperText={errorTexts.mainItemField}
+            onChange={updateMainIngredient}
             style={{
               width: 200,
-            }}
-            defaultValue={dish.mainIngredient}
-            onChange={(event): void => {
-              const mainIngredient = event.target.value;
-              const tmpDish: DishDTO = {
-                ...dish,
-                mainIngredient,
-              };
-              setDish(tmpDish);
             }}
           />
         </Box>
@@ -206,21 +302,14 @@ export const DishEdit = (props: Props): ReactElement => {
           <TextField
             required
             select
-            id="outlined-required"
             label="Cách chế biến"
-            value={dish.cookType.id || ''}
+            value={dish.cookType?.id || ''}
             variant="outlined"
+            error={!!errorTexts.cookTypeField}
+            helperText={errorTexts.cookTypeField}
+            onChange={updateCookType}
             style={{
               width: 200,
-            }}
-            onChange={(event): void => {
-              const typeId = +event.target.value;
-              const cookType = cookTypes.find((t) => t.id === typeId);
-              const tmpDish: DishDTO = {
-                ...dish,
-                cookType,
-              };
-              setDish(tmpDish);
             }}
           >
             {cookTypes.map((option) => (
@@ -233,22 +322,15 @@ export const DishEdit = (props: Props): ReactElement => {
 
         <Box my="30px" mr="30px">
           <TextField
-            required
-            id="outlined-required"
             label="Giá"
             placeholder="Nhập giá"
             variant="outlined"
+            error={!!errorTexts.costField}
+            helperText={errorTexts.costField}
+            defaultValue={dish.cost}
+            onChange={updateCost}
             style={{
               width: 200,
-            }}
-            defaultValue={dish.cost || ''}
-            onChange={(event): void => {
-              const cost = +event.target.value;
-              const tmpDish: DishDTO = {
-                ...dish,
-                cost,
-              };
-              setDish(tmpDish);
             }}
           />
         </Box>
@@ -261,7 +343,6 @@ export const DishEdit = (props: Props): ReactElement => {
           <Box my="30px" mr="30px">
             <Autocomplete
               ref={itemNameFieldRef}
-              id="combo-box-items"
               options={items}
               getOptionLabel={(option): string => option.name}
               style={{ width: 300 }}
@@ -289,7 +370,6 @@ export const DishEdit = (props: Props): ReactElement => {
             <TextField
               inputRef={itemAmountFieldRef}
               required
-              id="item-outlined-required"
               label="Số lượng"
               placeholder="Nhập số lượng"
               variant="outlined"
@@ -370,7 +450,6 @@ export const DishEdit = (props: Props): ReactElement => {
           <Box my="30px" mr="30px">
             <Autocomplete
               ref={toolNameFieldRef}
-              id="combo-box-tools"
               options={tools}
               getOptionLabel={(option): string => option.name}
               style={{ width: 300 }}
@@ -394,7 +473,6 @@ export const DishEdit = (props: Props): ReactElement => {
             <TextField
               inputRef={toolAmountFieldRef}
               required
-              id="tool-outlined-required"
               label="Số lượng"
               placeholder="Nhập số lượng"
               variant="outlined"
@@ -485,3 +563,10 @@ export const DishEdit = (props: Props): ReactElement => {
     </Paper>
   );
 };
+
+interface ValidationErrorText {
+  nameField: string;
+  mainItemField: string;
+  cookTypeField: string;
+  costField: string;
+}
