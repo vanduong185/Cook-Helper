@@ -12,7 +12,7 @@ import {
   Button,
 } from '@material-ui/core';
 import { Autocomplete, AutocompleteRenderInputParams } from '@material-ui/lab';
-import { AddCircle, Cancel } from '@material-ui/icons';
+import { AddCircle, Cancel, Close } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { getItems } from '../../items/ItemSlice';
 import { AppState } from '../../../store/store';
@@ -33,6 +33,12 @@ const useStyles = makeStyles((theme: Theme) =>
       height: '80%',
       padding: theme.spacing(2, 4, 3),
       overflow: 'auto',
+      position: 'relative',
+    },
+    closeButton: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
     },
     textBold: {
       fontSize: 18,
@@ -263,6 +269,9 @@ export const DishEdit = (props: Props): ReactElement => {
 
   return (
     <Paper className={classes.paper}>
+      <IconButton className={classes.closeButton} onClick={props.onClose}>
+        <Close />
+      </IconButton>
       <h1>{props.isEdit ? 'Sửa món ăn' : 'Thêm món ăn mới'}</h1>
       <Divider></Divider>
       <Box display="flex" flexDirection="row">

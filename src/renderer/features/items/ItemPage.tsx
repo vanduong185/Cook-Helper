@@ -119,6 +119,7 @@ export const ItemPage = (): ReactElement => {
         }}
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description"
+        disableBackdropClick
       >
         <>
           <ItemEdit

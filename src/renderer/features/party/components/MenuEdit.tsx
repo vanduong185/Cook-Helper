@@ -153,16 +153,28 @@ export const MenuEdit = (props: Props): ReactElement => {
     <Paper className={classes.paper}>
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <h1>{props.isEdit ? 'Sửa thực đơn' : 'Thêm thực đơn mới'}</h1>
-        <Button
-          variant="contained"
-          color="primary"
-          style={{
-            height: 40,
-          }}
-          onClick={props.isEdit ? handleUpdateMenu : handleCreateMenu}
-        >
-          {props.isEdit ? 'Lưu' : 'Thêm'}
-        </Button>
+        <Box display="flex" flexDirection="row">
+          <Button
+            variant="contained"
+            color="primary"
+            style={{
+              height: 40,
+            }}
+            onClick={props.isEdit ? handleUpdateMenu : handleCreateMenu}
+          >
+            {props.isEdit ? 'Lưu' : 'Thêm'}
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={props.onClose}
+            style={{
+              height: 40,
+              marginLeft: 20,
+            }}
+          >
+            {'Đóng'}
+          </Button>
+        </Box>
       </Box>
       <Divider></Divider>
       <Box display="flex" flexDirection="row">

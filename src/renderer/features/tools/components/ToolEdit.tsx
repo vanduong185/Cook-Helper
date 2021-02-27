@@ -7,12 +7,14 @@ import {
   Box,
   MenuItem,
   Button,
+  IconButton,
 } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { addTool, updateTool } from '../ToolSlice';
 import { ToolDTO } from '../../../dto/ToolDTO';
 import { getUnits } from '../../units/UnitSlice';
 import { AppState } from '../../../store/store';
+import { Close } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -21,6 +23,12 @@ const useStyles = makeStyles((theme: Theme) =>
       height: '550px',
       padding: theme.spacing(2, 4, 3),
       overflow: 'auto',
+      position: 'relative',
+    },
+    closeButton: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
     },
   }),
 );
@@ -135,6 +143,9 @@ export const ToolEdit = (props: Props): ReactElement => {
 
   return (
     <Paper className={classes.paper}>
+      <IconButton className={classes.closeButton} onClick={props.onClose}>
+        <Close />
+      </IconButton>
       <h1>{props.isEdit ? 'Sửa dụng cụ' : 'Thêm dụng cụ mới'}</h1>
       <Divider></Divider>
       <Box my="30px">
