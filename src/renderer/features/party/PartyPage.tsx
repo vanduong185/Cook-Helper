@@ -65,7 +65,6 @@ export const PartyPage = (): ReactElement => {
   };
 
   const handleShowStats = (): void => {
-    console.log('show');
     history.push('/party-stats');
   };
 
@@ -143,6 +142,7 @@ export const PartyPage = (): ReactElement => {
         }}
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description"
+        disableBackdropClick
       >
         <>
           <MenuEdit

@@ -130,6 +130,7 @@ export const DishPage = (): ReactElement => {
         }}
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description"
+        disableBackdropClick
       >
         <>
           <DishEdit

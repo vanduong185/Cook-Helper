@@ -19,7 +19,6 @@ import { AppState } from '../../../store/store';
 import { getDishes } from '../../dishes/DishSlice';
 import { DishItem } from './DishItem';
 import { MenuDTO } from '../../../dto/MenuDTO';
-
 import { addMenuToParty, updateMenuFromParty } from '../PartySlice';
 import { Utils } from '../../../utils/Utils';
 
@@ -43,14 +42,6 @@ interface Props {
 
 export const MenuEdit = (props: Props): ReactElement => {
   const classes = useStyles();
-  const [menu, setMenu] = React.useState<MenuDTO>(
-    props.menu || {
-      name: '',
-      setAmount: undefined,
-      dishes: [],
-    },
-  );
-
   const dispatch = useDispatch();
 
   React.useEffect(() => {
@@ -58,6 +49,19 @@ export const MenuEdit = (props: Props): ReactElement => {
   }, [dispatch]);
 
   const dishes = useSelector((state: AppState) => state.dishes);
+
+  const [menu, setMenu] = React.useState<MenuDTO>(
+    props.menu || {
+      name: undefined,
+      setAmount: 0,
+      dishes: [],
+    },
+  );
+
+  const [errorTexts, setErrorTexts] = React.useState<ValidationErrorText>({
+    nameField: undefined,
+    amountField: undefined,
+  });
 
   const getMenuPrice = (): number => {
     return Utils.getMenuPrice(menu);
@@ -76,11 +80,21 @@ export const MenuEdit = (props: Props): ReactElement => {
   };
 
   const handleCreateMenu = (): void => {
+    const isValid = validateMenuData();
+    if (!isValid) {
+      return;
+    }
+
     dispatch(addMenuToParty(menu));
     props.onClose();
   };
 
   const handleUpdateMenu = (): void => {
+    const isValid = validateMenuData();
+    if (!isValid) {
+      return;
+    }
+
     dispatch(
       updateMenuFromParty({
         menu,
@@ -90,56 +104,107 @@ export const MenuEdit = (props: Props): ReactElement => {
     props.onClose();
   };
 
+  const validateMenuData = (): boolean => {
+    const errorsTmp = { ...errorTexts };
+    let isValid = true;
+
+    if (!menu.name || menu.name.length <= 0) {
+      errorsTmp.nameField = 'Không được để trống';
+      isValid = false;
+    }
+
+    if ((!menu.setAmount && menu.setAmount !== 0) || menu.setAmount < 0) {
+      errorsTmp.amountField = 'Giá trị không hợp lệ';
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setErrorTexts(errorsTmp);
+    }
+
+    return isValid;
+  };
+
+  const updateName = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const tmpMenu = { ...menu };
+    tmpMenu.name = event.target.value;
+    setMenu(tmpMenu);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      nameField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
+  const updateAmount = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const tmpMenu = { ...menu };
+    tmpMenu.setAmount = +event.target.value;
+    setMenu(tmpMenu);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      amountField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
   return (
     <Paper className={classes.paper}>
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <h1>{props.isEdit ? 'Sửa thực đơn' : 'Thêm thực đơn mới'}</h1>
-        <Button
-          variant="contained"
-          color="primary"
-          style={{
-            height: 40,
-          }}
-          onClick={props.isEdit ? handleUpdateMenu : handleCreateMenu}
-        >
-          {props.isEdit ? 'Lưu' : 'Thêm'}
-        </Button>
+        <Box display="flex" flexDirection="row">
+          <Button
+            variant="contained"
+            color="primary"
+            style={{
+              height: 40,
+            }}
+            onClick={props.isEdit ? handleUpdateMenu : handleCreateMenu}
+          >
+            {props.isEdit ? 'Lưu' : 'Thêm'}
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={props.onClose}
+            style={{
+              height: 40,
+              marginLeft: 20,
+            }}
+          >
+            {'Đóng'}
+          </Button>
+        </Box>
       </Box>
       <Divider></Divider>
       <Box display="flex" flexDirection="row">
         <Box my="30px" mr="30px">
           <TextField
             required
-            id="outlined-required"
             label="Tên thực đơn"
             placeholder="Nhập tên thực đơn"
             variant="outlined"
+            defaultValue={menu.name}
+            error={!!errorTexts.nameField}
+            helperText={errorTexts.nameField}
+            onChange={updateName}
             style={{
               width: 300,
-            }}
-            defaultValue={menu.name}
-            onChange={(event): void => {
-              const tmpMenu = { ...menu };
-              tmpMenu.name = event.target.value;
-              setMenu(tmpMenu);
             }}
           />
         </Box>
         <Box my="30px" mr="30px">
           <TextField
             required
-            id="outlined-required"
             label="Số mâm"
             placeholder="Nhập số mâm"
             variant="outlined"
+            defaultValue={menu.setAmount}
+            error={!!errorTexts.amountField}
+            helperText={errorTexts.amountField}
+            onChange={updateAmount}
             style={{
               width: 300,
-            }}
-            defaultValue={menu.setAmount || ''}
-            onChange={(event): void => {
-              const tmpMenu = { ...menu };
-              tmpMenu.setAmount = +event.target.value;
-              setMenu(tmpMenu);
             }}
           />
         </Box>
@@ -245,3 +310,8 @@ export const MenuEdit = (props: Props): ReactElement => {
     </Paper>
   );
 };
+
+interface ValidationErrorText {
+  nameField: string;
+  amountField: string;
+}

@@ -7,20 +7,28 @@ import {
   Box,
   MenuItem,
   Button,
+  IconButton,
 } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { addTool, updateTool } from '../ToolSlice';
 import { ToolDTO } from '../../../dto/ToolDTO';
 import { getUnits } from '../../units/UnitSlice';
 import { AppState } from '../../../store/store';
+import { Close } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
       width: '750px',
-      height: '500px',
+      height: '550px',
       padding: theme.spacing(2, 4, 3),
       overflow: 'auto',
+      position: 'relative',
+    },
+    closeButton: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
     },
   }),
 );
@@ -43,44 +51,112 @@ export const ToolEdit = (props: Props): ReactElement => {
 
   const initTool: ToolDTO = props.tool || {
     id: undefined,
-    name: '',
-    size: '',
-    unit: {
-      id: undefined,
-      name: undefined,
-    },
+    name: undefined,
+    size: undefined,
+    unit: undefined,
   };
 
   const [tool, setTool] = React.useState<ToolDTO>(initTool);
+  const [errorTexts, setErrorTexts] = React.useState<ValidationErrorText>({
+    nameField: undefined,
+    unitField: undefined,
+  });
 
   const hanleCreateTool = (): void => {
+    const isValid = validateToolData();
+    if (!isValid) {
+      return;
+    }
+
     dispatch(addTool(tool));
     props.onClose();
   };
 
   const handleUpdateTool = (): void => {
+    const isValid = validateToolData();
+    if (!isValid) {
+      return;
+    }
+
     dispatch(updateTool(tool));
     props.onClose();
   };
 
+  const validateToolData = (): boolean => {
+    const errorsTmp = { ...errorTexts };
+    let isValid = true;
+
+    if (!tool.name || tool.name.length <= 0) {
+      errorsTmp.nameField = 'Không được để trống';
+      isValid = false;
+    }
+
+    if (!tool.unit) {
+      errorsTmp.unitField = 'Không được để trống';
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setErrorTexts(errorsTmp);
+    }
+
+    return isValid;
+  };
+
+  const updateName = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const tmpTool: ToolDTO = {
+      ...tool,
+      name: event.target.value,
+    };
+    setTool(tmpTool);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      nameField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
+  const updateSize = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const tmpTool: ToolDTO = {
+      ...tool,
+      size: event.target.value,
+    };
+    setTool(tmpTool);
+  };
+
+  const updateUnit = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const unitId = +event.target.value;
+    const unit = unitsData.find((u) => u.id === unitId);
+    const tmpTool: ToolDTO = {
+      ...tool,
+      unit,
+    };
+    setTool(tmpTool);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      unitField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
   return (
     <Paper className={classes.paper}>
+      <IconButton className={classes.closeButton} onClick={props.onClose}>
+        <Close />
+      </IconButton>
       <h1>{props.isEdit ? 'Sửa dụng cụ' : 'Thêm dụng cụ mới'}</h1>
       <Divider></Divider>
       <Box my="30px">
         <TextField
           required
-          id="outlined-required"
           label="Tên dụng cụ"
           defaultValue={tool.name}
           placeholder="Nhập tên dụng cụ"
-          onChange={(event): void => {
-            const tmpTool: ToolDTO = {
-              ...tool,
-              name: event.target.value,
-            };
-            setTool(tmpTool);
-          }}
+          error={!!errorTexts.nameField}
+          helperText={errorTexts.nameField}
+          onChange={updateName}
           variant="outlined"
           style={{
             width: 350,
@@ -90,18 +166,10 @@ export const ToolEdit = (props: Props): ReactElement => {
 
       <Box my="30px">
         <TextField
-          required
-          id="outlined-required"
           label="Kích cỡ"
           defaultValue={tool.size}
           placeholder="Nhập kích cỡ"
-          onChange={(event): void => {
-            const tmpTool: ToolDTO = {
-              ...tool,
-              size: event.target.value,
-            };
-            setTool(tmpTool);
-          }}
+          onChange={updateSize}
           variant="outlined"
           style={{
             width: 350,
@@ -115,16 +183,10 @@ export const ToolEdit = (props: Props): ReactElement => {
           required
           label="Đơn vị"
           variant="outlined"
-          value={tool.unit.id || ''}
-          onChange={(event): void => {
-            const unitId = +event.target.value;
-            const unit = unitsData.find((u) => u.id === unitId);
-            const tmpTool: ToolDTO = {
-              ...tool,
-              unit,
-            };
-            setTool(tmpTool);
-          }}
+          value={tool.unit?.id || ''}
+          error={!!errorTexts.unitField}
+          helperText={errorTexts.unitField}
+          onChange={updateUnit}
           style={{
             width: 350,
           }}
@@ -149,3 +211,8 @@ export const ToolEdit = (props: Props): ReactElement => {
     </Paper>
   );
 };
+
+interface ValidationErrorText {
+  nameField: string;
+  unitField: string;
+}
