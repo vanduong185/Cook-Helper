@@ -72,6 +72,7 @@ export const DishEdit = (props: Props): ReactElement => {
   const cookTypes = useSelector((state: AppState) => state.cookTypes);
   const items = useSelector((state: AppState) => state.items);
   const tools = useSelector((state: AppState) => state.tools);
+  const dishesData = useSelector((state: AppState) => state.dishes);
 
   const [dish, setDish] = React.useState<DishDTO>(
     props.dish || {
@@ -204,8 +205,11 @@ export const DishEdit = (props: Props): ReactElement => {
     return isValid;
   };
 
-  const updateDishName = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const name = event.target.value;
+  const updateDishName = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    value: string,
+  ): void => {
+    const name = value;
     const tmpDish: DishDTO = {
       ...dish,
       name,
@@ -276,17 +280,26 @@ export const DishEdit = (props: Props): ReactElement => {
       <Divider></Divider>
       <Box display="flex" flexDirection="row">
         <Box my="30px" mr="30px">
-          <TextField
-            required
-            label="Tên món ăn"
-            placeholder="Nhập tên món ăn"
-            variant="outlined"
-            defaultValue={dish.name}
-            error={!!errorTexts.nameField}
-            helperText={errorTexts.nameField}
-            onChange={updateDishName}
+          <Autocomplete
+            freeSolo
+            disableClearable
+            options={dishesData.map((dishData): string => dishData.name)}
+            defaultValue={props.dish?.name || ''}
+            inputValue={dish.name || ''}
+            onInputChange={updateDishName}
+            renderInput={(params): ReactElement => (
+              <TextField
+                {...params}
+                required
+                label="Tên món ăn"
+                placeholder="Nhập tên món ăn"
+                error={!!errorTexts.nameField}
+                helperText={errorTexts.nameField}
+                variant="outlined"
+              />
+            )}
             style={{
-              width: 250,
+              width: 350,
             }}
           />
         </Box>
