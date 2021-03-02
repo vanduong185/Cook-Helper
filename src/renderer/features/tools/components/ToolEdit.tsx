@@ -5,7 +5,6 @@ import {
   TextField,
   Divider,
   Box,
-  MenuItem,
   Button,
   IconButton,
 } from '@material-ui/core';
@@ -15,8 +14,9 @@ import { ToolDTO } from '../../../dto/ToolDTO';
 import { getUnits } from '../../units/UnitSlice';
 import { AppState } from '../../../store/store';
 import { Close } from '@material-ui/icons';
-import { Autocomplete, createFilterOptions } from '@material-ui/lab';
+import { Autocomplete } from '@material-ui/lab';
 import { UnitDTO } from '../../../dto/UnitDTO';
+import { UnitInput } from '../../../components/commons/UnitInput';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -40,8 +40,6 @@ interface Props {
   tool?: ToolDTO;
   isEdit?: boolean;
 }
-
-const filter = createFilterOptions<UnitSelection>();
 
 export const ToolEdit = (props: Props): ReactElement => {
   const classes = useStyles();
@@ -72,6 +70,8 @@ export const ToolEdit = (props: Props): ReactElement => {
     if (!isValid) {
       return;
     }
+
+    console.log(tool);
 
     dispatch(addTool(tool));
     props.onClose();
@@ -133,9 +133,7 @@ export const ToolEdit = (props: Props): ReactElement => {
     setTool(tmpTool);
   };
 
-  const updateUnit = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const unitId = +event.target.value;
-    const unit = unitsData.find((u) => u.id === unitId);
+  const updateUnit = (unit: UnitDTO): void => {
     const tmpTool: ToolDTO = {
       ...tool,
       unit,
@@ -195,76 +193,12 @@ export const ToolEdit = (props: Props): ReactElement => {
       </Box>
 
       <Box my="30px">
-        {/* <TextField
-          select
-          required
-          label="Đơn vị"
-          variant="outlined"
-          value={tool.unit?.id || ''}
+        <UnitInput
+          unitsData={unitsData}
           error={!!errorTexts.unitField}
           helperText={errorTexts.unitField}
+          value={tool.unit}
           onChange={updateUnit}
-          style={{
-            width: 350,
-          }}
-        >
-          {unitsData.map((option) => (
-            <MenuItem key={option.id} value={option.id}>
-              {option.name}
-            </MenuItem>
-          ))}
-        </TextField> */}
-        <Autocomplete
-          freeSolo
-          selectOnFocus
-          clearOnBlur
-          options={unitsData.map(
-            (unit): UnitSelection => unit as UnitSelection,
-          )}
-          filterOptions={(options, params): UnitSelection[] => {
-            const filtered = filter(options, params);
-
-            // Suggest the creation of a new value
-            if (params.inputValue !== '') {
-              filtered.push({
-                id: undefined,
-                inputValue: params.inputValue,
-                name: `Thêm "${params.inputValue}"`,
-              });
-            }
-
-            return filtered;
-          }}
-          getOptionLabel={(unit): string => {
-            // Value selected with enter, right from the input
-            if (typeof unit === 'string') {
-              return unit;
-            }
-            // Add "xxx" option created dynamically
-            if (unit.inputValue) {
-              return unit.inputValue;
-            }
-            // Regular option
-            return unit.name;
-          }}
-          renderOption={(unit): string => unit.name}
-          renderInput={(params): ReactElement => (
-            <TextField
-              {...params}
-              required
-              label="Đơn vị"
-              placeholder="Nhập tên đơn vị"
-              error={!!errorTexts.unitField}
-              helperText={errorTexts.unitField}
-              variant="outlined"
-            />
-          )}
-          onChange={(_, value) => {
-            console.log(value);
-          }}
-          style={{
-            width: 350,
-          }}
         />
       </Box>
 
@@ -284,8 +218,4 @@ export const ToolEdit = (props: Props): ReactElement => {
 interface ValidationErrorText {
   nameField: string;
   unitField: string;
-}
-
-class UnitSelection extends UnitDTO {
-  inputValue?: string;
 }

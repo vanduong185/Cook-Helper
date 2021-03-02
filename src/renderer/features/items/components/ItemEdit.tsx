@@ -1,21 +1,22 @@
 import React, { ReactElement } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import {
   Paper,
   TextField,
   Divider,
   Box,
-  MenuItem,
   Button,
   IconButton,
 } from '@material-ui/core';
-import { useDispatch, useSelector } from 'react-redux';
+import { Close } from '@material-ui/icons';
+import { Autocomplete } from '@material-ui/lab';
 import { addItem, updateItem } from '../ItemSlice';
 import { ItemDTO } from '../../../dto/ItemDTO';
 import { getUnits } from '../../units/UnitSlice';
 import { AppState } from '../../../store/store';
-import { Close } from '@material-ui/icons';
-import { Autocomplete } from '@material-ui/lab';
+import { UnitInput } from '../../../components/commons/UnitInput';
+import { UnitDTO } from '../../../dto/UnitDTO';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -145,9 +146,7 @@ export const ItemEdit = (props: Props): ReactElement => {
     setErrorTexts(tmpErrorTexts);
   };
 
-  const updateUnit = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const unitId = +event.target.value;
-    const unit = unitsData.find((u) => u.id === unitId);
+  const updateUnit = (unit: UnitDTO): void => {
     const tmpItem: ItemDTO = {
       ...item,
       unit,
@@ -224,25 +223,13 @@ export const ItemEdit = (props: Props): ReactElement => {
       </Box>
 
       <Box my="30px">
-        <TextField
-          select
-          required
-          label="Đơn vị"
-          variant="outlined"
-          value={item.unit?.id || ''}
+        <UnitInput
+          unitsData={unitsData}
           error={!!errorTexts.unitField}
           helperText={errorTexts.unitField}
+          value={item.unit}
           onChange={updateUnit}
-          style={{
-            width: 350,
-          }}
-        >
-          {unitsData.map((option) => (
-            <MenuItem key={option.id} value={option.id}>
-              {option.name}
-            </MenuItem>
-          ))}
-        </TextField>
+        />
       </Box>
 
       <Box mt="60px" display="flex" justifyContent="flex-end">

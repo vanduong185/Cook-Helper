@@ -2,6 +2,7 @@ import { ipcMain } from 'electron';
 import { Database } from '../database/Database';
 import { DishRecipe } from '../database/models/DishRecipe';
 import { Item } from '../database/models/Item';
+import { Unit } from '../database/models/Unit';
 
 export class ItemController {
   database: Database;
@@ -26,6 +27,13 @@ export class ItemController {
     ipcMain.handle(
       'item-add',
       async (_event, item: Item): Promise<Item> => {
+        // create new unit if it not exist
+        if (!item.unit.id) {
+          const unitRepo = this.database.connection.getRepository(Unit);
+          const newUnit = await unitRepo.save(item.unit);
+          item.unit = newUnit;
+        }
+
         const itemRepo = this.database.connection.getRepository(Item);
         const newItem = await itemRepo.save(item);
         return newItem;
