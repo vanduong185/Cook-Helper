@@ -6,6 +6,7 @@ import { PartyPage } from '../../features/party/PartyPage';
 import { DishPage } from '../../features/dishes/DishPage';
 import { ToolPage } from '../../features/tools/ToolPage';
 import { PartyStatsPage } from '../../features/party-stats/PartyStatsPage';
+import { UnitPage } from '../../features/units/UnitPage';
 
 export const AppRouter = (): ReactElement => {
   return (
@@ -16,6 +17,7 @@ export const AppRouter = (): ReactElement => {
       <Route path="/dishes" component={DishPage} />
       <Route path="/items" component={ItemPage} />
       <Route path="/tools" component={ToolPage} />
+      <Route path="/units" component={UnitPage} />
     </Switch>
   );
 };
