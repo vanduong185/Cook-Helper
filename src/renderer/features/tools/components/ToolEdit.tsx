@@ -15,6 +15,7 @@ import { ToolDTO } from '../../../dto/ToolDTO';
 import { getUnits } from '../../units/UnitSlice';
 import { AppState } from '../../../store/store';
 import { Close } from '@material-ui/icons';
+import { Autocomplete } from '@material-ui/lab';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,6 +49,7 @@ export const ToolEdit = (props: Props): ReactElement => {
   }, [dispatch]);
 
   const unitsData = useSelector((state: AppState) => state.units);
+  const toolsData = useSelector((state: AppState) => state.tools);
 
   const initTool: ToolDTO = props.tool || {
     id: undefined,
@@ -103,10 +105,13 @@ export const ToolEdit = (props: Props): ReactElement => {
     return isValid;
   };
 
-  const updateName = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const updateName = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    value: string,
+  ): void => {
     const tmpTool: ToolDTO = {
       ...tool,
-      name: event.target.value,
+      name: value,
     };
     setTool(tmpTool);
 
@@ -149,15 +154,24 @@ export const ToolEdit = (props: Props): ReactElement => {
       <h1>{props.isEdit ? 'Sửa dụng cụ' : 'Thêm dụng cụ mới'}</h1>
       <Divider></Divider>
       <Box my="30px">
-        <TextField
-          required
-          label="Tên dụng cụ"
-          defaultValue={tool.name}
-          placeholder="Nhập tên dụng cụ"
-          error={!!errorTexts.nameField}
-          helperText={errorTexts.nameField}
-          onChange={updateName}
-          variant="outlined"
+        <Autocomplete
+          freeSolo
+          disableClearable
+          options={toolsData.map((toolData): string => toolData.name)}
+          defaultValue={props.tool?.name || ''}
+          inputValue={tool.name || ''}
+          onInputChange={updateName}
+          renderInput={(params): ReactElement => (
+            <TextField
+              {...params}
+              required
+              label="Tên dụng cụ"
+              placeholder="Nhập tên dụng cụ"
+              error={!!errorTexts.nameField}
+              helperText={errorTexts.nameField}
+              variant="outlined"
+            />
+          )}
           style={{
             width: 350,
           }}

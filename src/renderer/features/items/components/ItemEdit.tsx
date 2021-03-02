@@ -15,6 +15,7 @@ import { ItemDTO } from '../../../dto/ItemDTO';
 import { getUnits } from '../../units/UnitSlice';
 import { AppState } from '../../../store/store';
 import { Close } from '@material-ui/icons';
+import { Autocomplete } from '@material-ui/lab';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,6 +49,7 @@ export const ItemEdit = (props: Props): ReactElement => {
   }, [dispatch]);
 
   const unitsData = useSelector((state: AppState) => state.units);
+  const itemsData = useSelector((state: AppState) => state.items);
   const [errorTexts, setErrorTexts] = React.useState<ValidationErrorText>({
     nameField: undefined,
     providerField: undefined,
@@ -109,10 +111,13 @@ export const ItemEdit = (props: Props): ReactElement => {
     return isValid;
   };
 
-  const updateName = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const updateName = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    value: string,
+  ): void => {
     const tmpItem: ItemDTO = {
       ...item,
-      name: event.target.value,
+      name: value,
     };
     setItem(tmpItem);
 
@@ -123,10 +128,13 @@ export const ItemEdit = (props: Props): ReactElement => {
     setErrorTexts(tmpErrorTexts);
   };
 
-  const updateProvider = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const updateProvider = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    value: string,
+  ): void => {
     const tmpItem: ItemDTO = {
       ...item,
-      provider: event.target.value,
+      provider: value,
     };
     setItem(tmpItem);
 
@@ -153,6 +161,11 @@ export const ItemEdit = (props: Props): ReactElement => {
     setErrorTexts(tmpErrorTexts);
   };
 
+  const getUniqueProviders = (items: ItemDTO[]): string[] => {
+    const providers = items.map((itemData): string => itemData.provider);
+    return providers.filter((p, i, arr) => arr.indexOf(p) === i);
+  };
+
   return (
     <Paper className={classes.paper}>
       <IconButton className={classes.closeButton} onClick={props.onClose}>
@@ -161,15 +174,24 @@ export const ItemEdit = (props: Props): ReactElement => {
       <h1>{props.isEdit ? 'Sửa nguyên liệu' : 'Thêm nguyên liệu mới'}</h1>
       <Divider></Divider>
       <Box my="30px">
-        <TextField
-          required
-          label="Tên nguyên liệu"
-          defaultValue={item.name}
-          placeholder="Nhập tên nguyên liệu"
-          error={!!errorTexts.nameField}
-          helperText={errorTexts.nameField}
-          onChange={updateName}
-          variant="outlined"
+        <Autocomplete
+          freeSolo
+          disableClearable
+          options={itemsData.map((itemData): string => itemData.name)}
+          defaultValue={props.item?.name || ''}
+          inputValue={item.name || ''}
+          onInputChange={updateName}
+          renderInput={(params): ReactElement => (
+            <TextField
+              {...params}
+              required
+              label="Tên nguyên liệu"
+              placeholder="Nhập tên nguyên liệu"
+              error={!!errorTexts.nameField}
+              helperText={errorTexts.nameField}
+              variant="outlined"
+            />
+          )}
           style={{
             width: 350,
           }}
@@ -177,15 +199,24 @@ export const ItemEdit = (props: Props): ReactElement => {
       </Box>
 
       <Box my="30px">
-        <TextField
-          required
-          label="Nguồn cung cấp"
-          defaultValue={item.provider}
-          placeholder="Nhập nguồn cung cấp"
-          error={!!errorTexts.providerField}
-          helperText={errorTexts.providerField}
-          onChange={updateProvider}
-          variant="outlined"
+        <Autocomplete
+          freeSolo
+          disableClearable
+          options={getUniqueProviders(itemsData)}
+          defaultValue={props.item?.provider || ''}
+          inputValue={item.provider || ''}
+          onInputChange={updateProvider}
+          renderInput={(params): ReactElement => (
+            <TextField
+              {...params}
+              required
+              label="Nguồn cung cấp"
+              placeholder="Nhập nguồn cung cấp"
+              error={!!errorTexts.providerField}
+              helperText={errorTexts.providerField}
+              variant="outlined"
+            />
+          )}
           style={{
             width: 350,
           }}
