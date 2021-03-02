@@ -15,7 +15,8 @@ import { ToolDTO } from '../../../dto/ToolDTO';
 import { getUnits } from '../../units/UnitSlice';
 import { AppState } from '../../../store/store';
 import { Close } from '@material-ui/icons';
-import { Autocomplete } from '@material-ui/lab';
+import { Autocomplete, createFilterOptions } from '@material-ui/lab';
+import { UnitDTO } from '../../../dto/UnitDTO';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -39,6 +40,8 @@ interface Props {
   tool?: ToolDTO;
   isEdit?: boolean;
 }
+
+const filter = createFilterOptions<UnitSelection>();
 
 export const ToolEdit = (props: Props): ReactElement => {
   const classes = useStyles();
@@ -192,7 +195,7 @@ export const ToolEdit = (props: Props): ReactElement => {
       </Box>
 
       <Box my="30px">
-        <TextField
+        {/* <TextField
           select
           required
           label="Đơn vị"
@@ -210,7 +213,59 @@ export const ToolEdit = (props: Props): ReactElement => {
               {option.name}
             </MenuItem>
           ))}
-        </TextField>
+        </TextField> */}
+        <Autocomplete
+          freeSolo
+          selectOnFocus
+          clearOnBlur
+          options={unitsData.map(
+            (unit): UnitSelection => unit as UnitSelection,
+          )}
+          filterOptions={(options, params): UnitSelection[] => {
+            const filtered = filter(options, params);
+
+            // Suggest the creation of a new value
+            if (params.inputValue !== '') {
+              filtered.push({
+                id: undefined,
+                inputValue: params.inputValue,
+                name: `Thêm "${params.inputValue}"`,
+              });
+            }
+
+            return filtered;
+          }}
+          getOptionLabel={(unit): string => {
+            // Value selected with enter, right from the input
+            if (typeof unit === 'string') {
+              return unit;
+            }
+            // Add "xxx" option created dynamically
+            if (unit.inputValue) {
+              return unit.inputValue;
+            }
+            // Regular option
+            return unit.name;
+          }}
+          renderOption={(unit): string => unit.name}
+          renderInput={(params): ReactElement => (
+            <TextField
+              {...params}
+              required
+              label="Đơn vị"
+              placeholder="Nhập tên đơn vị"
+              error={!!errorTexts.unitField}
+              helperText={errorTexts.unitField}
+              variant="outlined"
+            />
+          )}
+          onChange={(_, value) => {
+            console.log(value);
+          }}
+          style={{
+            width: 350,
+          }}
+        />
       </Box>
 
       <Box mt="60px" display="flex" justifyContent="flex-end">
@@ -229,4 +284,8 @@ export const ToolEdit = (props: Props): ReactElement => {
 interface ValidationErrorText {
   nameField: string;
   unitField: string;
+}
+
+class UnitSelection extends UnitDTO {
+  inputValue?: string;
 }
