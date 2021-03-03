@@ -2,6 +2,7 @@ import { ipcMain } from 'electron';
 import { Database } from '../database/Database';
 import { DishTool } from '../database/models/DishTool';
 import { Tool } from '../database/models/Tool';
+import { Unit } from '../database/models/Unit';
 
 export class ToolController {
   database: Database;
@@ -26,6 +27,13 @@ export class ToolController {
     ipcMain.handle(
       'tool-add',
       async (_event, tool: Tool): Promise<Tool> => {
+        // create new unit if it not exist
+        if (!tool.unit.id) {
+          const unitRepo = this.database.connection.getRepository(Unit);
+          const newUnit = await unitRepo.save(tool.unit);
+          tool.unit = newUnit;
+        }
+
         const toolRepo = this.database.connection.getRepository(Tool);
         const newTool = await toolRepo.save(tool);
         return newTool;
