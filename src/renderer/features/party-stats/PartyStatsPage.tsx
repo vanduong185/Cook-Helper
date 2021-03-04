@@ -124,7 +124,7 @@ export const PartyStatsPage = (): ReactElement => {
 
   const exportExcel = (): void => {
     const sheetExport = new SheetExport();
-    sheetExport.export(partyMenus);
+    sheetExport.exportItemByProvider(partyMenus);
   };
 
   return (
