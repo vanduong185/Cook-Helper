@@ -8,6 +8,7 @@ import {
   makeStyles,
   MenuItem,
   TextField,
+  Modal,
 } from '@material-ui/core';
 import { ArrowBack } from '@material-ui/icons';
 import { useHistory } from 'react-router-dom';
@@ -19,8 +20,8 @@ import { MenuDTO } from '../../dto/MenuDTO';
 import { ToolTable } from './components/ToolTable';
 import { ToolStatsDTO } from '../../dto/ToolStatsDTO';
 import { DishDTO } from '../../dto/DishDTO';
-import { SheetExport } from '../../utils/SheetExport';
 import { Utils } from '../../utils/Utils';
+import { ExportModal } from './components/ExportModal';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -37,11 +38,20 @@ export const PartyStatsPage = (): ReactElement => {
   const history = useHistory();
   const [selectedMenuIndex, setSelectedMenuIndex] = React.useState<number>(-1);
   const [selectedDishId, setSelectedDishId] = React.useState<number>(undefined);
+  const [openExportModal, setOpenExportModal] = React.useState(false);
 
   const partyMenus = useSelector((state: AppState) => state.partyMenus);
 
   const handleGoBack = (): void => {
     history.goBack();
+  };
+
+  const handleOpenExportModal = (): void => {
+    setOpenExportModal(true);
+  };
+
+  const handleCloseExportModal = (): void => {
+    setOpenExportModal(false);
   };
 
   const getItemStats = (menus: MenuDTO[]): ItemStatsDTO[] => {
@@ -122,11 +132,6 @@ export const PartyStatsPage = (): ReactElement => {
     );
   };
 
-  const exportExcel = (): void => {
-    const sheetExport = new SheetExport();
-    sheetExport.export(partyMenus);
-  };
-
   return (
     <Container>
       <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -151,7 +156,7 @@ export const PartyStatsPage = (): ReactElement => {
           style={{
             height: 40,
           }}
-          onClick={exportExcel}
+          onClick={handleOpenExportModal}
         >
           Xuất Excel
         </Button>
@@ -237,6 +242,27 @@ export const PartyStatsPage = (): ReactElement => {
         <h4>Tổng dụng cụ cho món này</h4>
         <ToolTable toolStats={getToolStatsByDishId(selectedDishId)}></ToolTable>
       </Box>
+
+      <Modal
+        id="export-modal"
+        open={openExportModal}
+        onClose={handleOpenExportModal}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+        disableBackdropClick
+      >
+        <>
+          <ExportModal
+            onClose={handleCloseExportModal}
+            menus={partyMenus}
+          ></ExportModal>
+        </>
+      </Modal>
     </Container>
   );
 };
