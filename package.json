@@ -21,7 +21,8 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "asar": true
+        "asar": true,
+        "icon": "assets/cook_helper_icon.ico"
       },
       "makers": [
         {
