@@ -11,6 +11,7 @@ import { ArrowForward, Replay } from '@material-ui/icons';
 import React, { ReactElement } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { ConfirmDeleteDialog } from '../../components/commons/ConfirmDeleteDialog';
 import { MenuDTO } from '../../dto/MenuDTO';
 import { AppState } from '../../store/store';
 import { AddMenuButton } from './components/AddMenuButton';
@@ -31,6 +32,12 @@ export const PartyPage = (): ReactElement => {
   const classes = useStyles();
   const history = useHistory();
   const [openEditModal, setOpenEditModal] = React.useState(false);
+  const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] = React.useState(
+    false,
+  );
+  const [openConfirmResetDialog, setOpenConfirmResetDialog] = React.useState(
+    false,
+  );
   const [selectedMenu, setSelectedMenu] = React.useState<MenuDTO>(undefined);
   const [selectedIndexMenu, setSelectedIndexMenu] = React.useState<number>(
     undefined,
@@ -40,13 +47,25 @@ export const PartyPage = (): ReactElement => {
 
   const partyMenus = useSelector((state: AppState) => state.partyMenus);
 
-  const handleOpenEditModal = (): void => {
+  const showEditMenuModal = (menu?: MenuDTO, index?: number): void => {
+    setSelectedIndexMenu(index);
+    setSelectedMenu(menu);
     setOpenEditModal(true);
   };
 
-  const handleCloseEditModal = (): void => {
+  const closeEditMenuModal = (): void => {
     setOpenEditModal(false);
     setSelectedMenu(undefined);
+    setSelectedIndexMenu(undefined);
+  };
+
+  const showDeleteModal = (indexMenu: number): void => {
+    setSelectedIndexMenu(indexMenu);
+    setOpenConfirmDeleteDialog(true);
+  };
+
+  const closeDeleteModal = (): void => {
+    setOpenConfirmDeleteDialog(false);
     setSelectedIndexMenu(undefined);
   };
 
@@ -54,10 +73,15 @@ export const PartyPage = (): ReactElement => {
     dispatch(removeMenuFromParty(index));
   };
 
-  const handleClickMenu = (menu: MenuDTO, index: number): void => {
-    setSelectedIndexMenu(index);
-    setSelectedMenu(menu);
-    setOpenEditModal(true);
+  const showResetModal = (): void => {
+    if (!partyMenus || partyMenus.length <= 0) {
+      return;
+    }
+    setOpenConfirmResetDialog(true);
+  };
+
+  const closeResetModal = (): void => {
+    setOpenConfirmResetDialog(false);
   };
 
   const handleResetParty = (): void => {
@@ -94,27 +118,26 @@ export const PartyPage = (): ReactElement => {
             key={index}
             menu={menu}
             onRemoveClick={(): void => {
-              handleRemoveMenu(index);
+              showDeleteModal(index);
             }}
             onClick={(): void => {
-              handleClickMenu(menu, index);
+              showEditMenuModal(menu, index);
             }}
           ></MenuBox>
         ))}
-        <AddMenuButton onClick={handleOpenEditModal}></AddMenuButton>
+        <AddMenuButton
+          onClick={(): void => {
+            showEditMenuModal();
+          }}
+        ></AddMenuButton>
       </Box>
 
-      <Box
-        display="flex"
-        flexDirection="row"
-        justifyContent="flex-end"
-        my="50px"
-      >
+      <Box display="flex" flexDirection="row" justifyContent="center" my="50px">
         <Button
           variant="outlined"
           color="primary"
           style={{ margin: '0px 15px' }}
-          onClick={handleResetParty}
+          onClick={showResetModal}
         >
           <Replay></Replay>
           Tạo lại
@@ -134,7 +157,7 @@ export const PartyPage = (): ReactElement => {
       <Modal
         id="edit-menu-modal"
         open={openEditModal}
-        onClose={handleCloseEditModal}
+        onClose={closeEditMenuModal}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -146,13 +169,35 @@ export const PartyPage = (): ReactElement => {
       >
         <>
           <MenuEdit
-            onClose={handleCloseEditModal}
+            onClose={closeEditMenuModal}
             indexMenu={selectedIndexMenu}
             menu={selectedMenu}
             isEdit={!!selectedMenu}
           ></MenuEdit>
         </>
       </Modal>
+      <ConfirmDeleteDialog
+        title={'Xác nhận xóa thực đơn này?'}
+        open={openConfirmDeleteDialog}
+        onClose={(): void => {
+          closeDeleteModal();
+        }}
+        onConfirm={(): void => {
+          handleRemoveMenu(selectedIndexMenu);
+          closeDeleteModal();
+        }}
+      ></ConfirmDeleteDialog>
+      <ConfirmDeleteDialog
+        title={'Xác nhận xóa tất cả thực đơn và tạo lại?'}
+        open={openConfirmResetDialog}
+        onClose={(): void => {
+          closeResetModal();
+        }}
+        onConfirm={(): void => {
+          handleResetParty();
+          closeResetModal();
+        }}
+      ></ConfirmDeleteDialog>
     </Container>
   );
 };
