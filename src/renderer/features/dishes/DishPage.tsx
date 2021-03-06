@@ -1,5 +1,5 @@
-import { Container, Box, Button, Modal, IconButton } from '@material-ui/core';
-import { Add, Edit, Delete } from '@material-ui/icons';
+import { Container, Box, Button, Modal } from '@material-ui/core';
+import { Add } from '@material-ui/icons';
 import React, { ReactElement } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../../store/store';
@@ -8,9 +8,14 @@ import { deleteDish, getDishes } from './DishSlice';
 import { DataGrid, CellParams } from '@material-ui/data-grid';
 import { CookTypeDTO } from '../../dto/CookTypeDTO';
 import { DishDTO } from '../../dto/DishDTO';
+import { ActionButton } from '../../components/commons/ActionButton';
+import { ConfirmDeleteDialog } from '../../components/commons/ConfirmDeleteDialog';
 
 export const DishPage = (): ReactElement => {
   const [openEditModal, setOpenEditModal] = React.useState(false);
+  const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] = React.useState(
+    false,
+  );
   const [selectedDish, setSelectedDish] = React.useState<DishDTO>();
 
   const dispatch = useDispatch();
@@ -21,23 +26,27 @@ export const DishPage = (): ReactElement => {
 
   const dishes = useSelector((state: AppState) => state.dishes);
 
-  const handleOpenEditModal = (): void => {
-    setOpenEditModal(true);
-  };
-
-  const handleCloseEditModal = (): void => {
-    setOpenEditModal(false);
-    setSelectedDish(undefined);
-  };
-
-  const handleEditClick = (dishId: number): void => {
-    const dish = dishes.find((d) => d.id === dishId);
+  const showEditModal = (dish: DishDTO): void => {
     setSelectedDish(dish);
     setOpenEditModal(true);
   };
 
-  const handleDeleteClick = (dishId: number): void => {
-    const dish = dishes.find((d) => d.id === dishId);
+  const closeEditModal = (): void => {
+    setOpenEditModal(false);
+    setSelectedDish(undefined);
+  };
+
+  const showDeleteModal = (dish: DishDTO): void => {
+    setSelectedDish(dish);
+    setOpenConfirmDeleteDialog(true);
+  };
+
+  const closeDeleteModal = (): void => {
+    setOpenConfirmDeleteDialog(false);
+    setSelectedDish(undefined);
+  };
+
+  const handleDeleteItem = (dish: DishDTO): void => {
     dispatch(deleteDish(dish));
   };
 
@@ -48,7 +57,9 @@ export const DishPage = (): ReactElement => {
         <Button
           variant="contained"
           color="primary"
-          onClick={handleOpenEditModal}
+          onClick={(): void => {
+            showEditModal(undefined);
+          }}
         >
           <Add></Add>
           Thêm món ăn
@@ -62,7 +73,7 @@ export const DishPage = (): ReactElement => {
             {
               field: 'seq',
               headerName: 'STT',
-              width: 100,
+              width: 80,
               valueFormatter: (params: CellParams): string => {
                 return `${params.rowIndex + 1}`;
               },
@@ -71,12 +82,12 @@ export const DishPage = (): ReactElement => {
             {
               field: 'mainIngredient',
               headerName: 'Nguyên liệu chính',
-              width: 200,
+              width: 180,
             },
             {
               field: 'cookType',
               headerName: 'Cách chế biến',
-              width: 200,
+              width: 150,
               valueGetter: (params: CellParams): string => {
                 const type = params.value as CookTypeDTO;
                 return type?.name;
@@ -85,31 +96,25 @@ export const DishPage = (): ReactElement => {
             {
               field: 'cost',
               headerName: 'Giá',
-              width: 200,
+              width: 150,
             },
             {
               field: 'action',
               headerName: ' ',
               sortable: false,
               disableColumnMenu: true,
-              width: 150,
+              width: 80,
               renderCell: (params: CellParams): ReactElement => {
                 return (
                   <Box display="flex" flexDirection="row">
-                    <IconButton
-                      onClick={(): void => {
-                        handleEditClick(params.row.id as number);
+                    <ActionButton
+                      onEditClick={(): void => {
+                        showEditModal(params.row as DishDTO);
                       }}
-                    >
-                      <Edit color="primary" fontSize="small"></Edit>
-                    </IconButton>
-                    <IconButton
-                      onClick={(): void => {
-                        handleDeleteClick(params.row.id as number);
+                      onDeleteClick={(): void => {
+                        showDeleteModal(params.row as DishDTO);
                       }}
-                    >
-                      <Delete color="secondary" fontSize="small"></Delete>
-                    </IconButton>
+                    ></ActionButton>
                   </Box>
                 );
               },
@@ -122,7 +127,7 @@ export const DishPage = (): ReactElement => {
       <Modal
         id="add-modal"
         open={openEditModal}
-        onClose={handleCloseEditModal}
+        onClose={closeEditModal}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -134,12 +139,23 @@ export const DishPage = (): ReactElement => {
       >
         <>
           <DishEdit
-            onClose={handleCloseEditModal}
+            onClose={closeEditModal}
             dish={selectedDish}
             isEdit={!!selectedDish}
           ></DishEdit>
         </>
       </Modal>
+      <ConfirmDeleteDialog
+        title={'Xác nhận xóa món ăn này?'}
+        open={openConfirmDeleteDialog}
+        onClose={(): void => {
+          closeDeleteModal();
+        }}
+        onConfirm={(): void => {
+          handleDeleteItem(selectedDish);
+          closeDeleteModal();
+        }}
+      ></ConfirmDeleteDialog>
     </Container>
   );
 };

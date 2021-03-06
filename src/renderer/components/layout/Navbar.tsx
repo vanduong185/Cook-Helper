@@ -97,7 +97,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   navItemText: {
     color: theme.palette.grey[800],
-    fontWeight: 800,
+    fontWeight: 600,
   },
   activeNavItem: {
     backgroundColor: theme.palette.primary.main,
