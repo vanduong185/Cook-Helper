@@ -212,10 +212,14 @@ export const MenuEdit = (props: Props): ReactElement => {
 
       <Box display="flex" flexDirection="row">
         <Box mr="60px">
-          <span>{`Số lượng món: ${menu.dishes.length}`}</span>
+          <span
+            style={{ fontWeight: 600 }}
+          >{`Số lượng món: ${menu.dishes.length}`}</span>
         </Box>
         <Box mr="30px">
-          <span>{`Giá thực đơn: ${getMenuPrice()}`}</span>
+          <span
+            style={{ fontWeight: 600 }}
+          >{`Giá thực đơn: ${getMenuPrice()}`}</span>
         </Box>
       </Box>
 
@@ -233,7 +237,14 @@ export const MenuEdit = (props: Props): ReactElement => {
         overflow="auto"
       >
         {menu.dishes.length <= 0 ? (
-          <span>Chua co mon an nao trong thuc don</span>
+          <Box
+            display="flex"
+            flexDirection="row"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <i>Chưa có món ăn nào trong thực đơn. Thêm món từ bảng bên dưới.</i>
+          </Box>
         ) : (
           <></>
         )}
@@ -254,9 +265,29 @@ export const MenuEdit = (props: Props): ReactElement => {
           rows={dishes}
           columns={[
             {
+              field: 'action',
+              headerName: ' ',
+              sortable: false,
+              disableColumnMenu: true,
+              width: 50,
+              renderCell: (params: CellParams): ReactElement => {
+                return (
+                  <IconButton
+                    color="primary"
+                    size="small"
+                    onClick={(): void => {
+                      handleAddDish(params.row as DishDTO);
+                    }}
+                  >
+                    <AddCircle></AddCircle>
+                  </IconButton>
+                );
+              },
+            },
+            {
               field: 'seq',
               headerName: 'STT',
-              width: 100,
+              width: 80,
               valueFormatter: (params: CellParams): string => {
                 return `${params.rowIndex + 1}`;
               },
@@ -265,12 +296,12 @@ export const MenuEdit = (props: Props): ReactElement => {
             {
               field: 'mainIngredient',
               headerName: 'Nguyên liệu chính',
-              width: 200,
+              width: 180,
             },
             {
               field: 'cookType',
               headerName: 'Cách chế biến',
-              width: 200,
+              width: 150,
               valueGetter: (params: CellParams): string => {
                 const type = params.value as CookTypeDTO;
                 return type?.name;
@@ -279,29 +310,7 @@ export const MenuEdit = (props: Props): ReactElement => {
             {
               field: 'cost',
               headerName: 'Giá',
-              width: 200,
-            },
-            {
-              field: 'action',
-              headerName: ' ',
-              sortable: false,
-              disableColumnMenu: true,
               width: 150,
-              renderCell: (params: CellParams): ReactElement => {
-                return (
-                  <Box display="flex" flexDirection="row">
-                    <IconButton
-                      color="primary"
-                      size="small"
-                      onClick={(): void => {
-                        handleAddDish(params.row as DishDTO);
-                      }}
-                    >
-                      <AddCircle></AddCircle>
-                    </IconButton>
-                  </Box>
-                );
-              },
             },
           ]}
           pageSize={10}
