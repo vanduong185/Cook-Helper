@@ -9,6 +9,28 @@ export const getCookTypes = createAsyncThunk('cooktype/getAll', async () => {
   return cookTypesData;
 });
 
+export const addCookType = createAsyncThunk(
+  'cooktype/add',
+  async (cookType: CookTypeDTO): Promise<CookTypeDTO> => {
+    const newCookType = (await ipcRenderer.invoke(
+      'cooktype-add',
+      cookType,
+    )) as CookTypeDTO;
+    return newCookType;
+  },
+);
+
+export const updateCookType = createAsyncThunk(
+  'cooktype/update',
+  async (cookType: CookTypeDTO): Promise<CookTypeDTO> => {
+    const updatedCookType = (await ipcRenderer.invoke(
+      'cooktype-update',
+      cookType,
+    )) as CookTypeDTO;
+    return updatedCookType;
+  },
+);
+
 const initCookTypes: CookTypeDTO[] = [];
 
 const cookTypeSlice = createSlice({
@@ -18,6 +40,14 @@ const cookTypeSlice = createSlice({
   extraReducers: {
     [getCookTypes.fulfilled.toString()]: (state, action): void => {
       return action.payload;
+    },
+    [addCookType.fulfilled.toString()]: (state, action): void => {
+      state.push(action.payload);
+    },
+    [updateCookType.fulfilled.toString()]: (state, action): void => {
+      const updatedCookType = action.payload as CookTypeDTO;
+      const index = state.findIndex((i) => i.id === updatedCookType.id);
+      state[index] = updatedCookType;
     },
   },
 });
