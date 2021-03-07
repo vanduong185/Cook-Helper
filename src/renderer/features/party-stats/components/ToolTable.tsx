@@ -3,6 +3,7 @@ import { CellParams, DataGrid } from '@material-ui/data-grid';
 import React, { ReactElement } from 'react';
 import { ToolDTO } from '../../../dto/ToolDTO';
 import { ToolStatsDTO } from '../../../dto/ToolStatsDTO';
+import { Utils } from '../../../utils/Utils';
 
 interface Props {
   toolStats: ToolStatsDTO[];
@@ -54,6 +55,11 @@ export const ToolTable = (props: Props): ReactElement => {
             field: 'amount',
             headerName: 'Số lượng',
             width: 180,
+            valueGetter: (params: CellParams): string => {
+              const amount = params.value as number;
+              const formatAmount = Utils.formatTwoDecimaNumber(amount);
+              return formatAmount.toLocaleString();
+            },
           },
           {
             field: 'unit',

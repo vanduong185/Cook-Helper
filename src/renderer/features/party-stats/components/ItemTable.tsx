@@ -3,6 +3,7 @@ import { CellParams, DataGrid } from '@material-ui/data-grid';
 import React, { ReactElement } from 'react';
 import { ItemDTO } from '../../../dto/ItemDTO';
 import { ItemStatsDTO } from '../../../dto/ItemStatsDTO';
+import { Utils } from '../../../utils/Utils';
 
 interface Props {
   itemStats: ItemStatsDTO[];
@@ -54,6 +55,11 @@ export const ItemTable = (props: Props): ReactElement => {
             field: 'amount',
             headerName: 'Số lượng',
             width: 180,
+            valueGetter: (params: CellParams): string => {
+              const amount = params.value as number;
+              const formatAmount = Utils.formatTwoDecimaNumber(amount);
+              return formatAmount.toLocaleString();
+            },
           },
           {
             field: 'unit',

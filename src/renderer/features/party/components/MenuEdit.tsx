@@ -219,7 +219,7 @@ export const MenuEdit = (props: Props): ReactElement => {
         <Box mr="30px">
           <span
             style={{ fontWeight: 600 }}
-          >{`Giá thực đơn: ${getMenuPrice()}`}</span>
+          >{`Giá thực đơn: ${getMenuPrice().toLocaleString()}đ`}</span>
         </Box>
       </Box>
 
@@ -311,6 +311,9 @@ export const MenuEdit = (props: Props): ReactElement => {
               field: 'cost',
               headerName: 'Giá',
               width: 150,
+              valueGetter: (params: CellParams): string => {
+                return params.value.toLocaleString();
+              },
             },
           ]}
           pageSize={10}

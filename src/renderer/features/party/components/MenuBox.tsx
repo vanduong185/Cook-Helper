@@ -81,7 +81,7 @@ export const MenuBox = (props: Props): ReactElement => {
       <Box display="flex" flexDirection="row" alignItems="center">
         <Typography variant="subtitle1">{`${props.menu.dishes.length} món`}</Typography>
         <span style={{ margin: '0px 15px' }}>•</span>
-        <Typography variant="subtitle1">{`${getMenuPrice()}đ`}</Typography>
+        <Typography variant="subtitle1">{`${getMenuPrice().toLocaleString()}đ`}</Typography>
       </Box>
 
       <Box

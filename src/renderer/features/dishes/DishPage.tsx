@@ -95,8 +95,11 @@ export const DishPage = (): ReactElement => {
             },
             {
               field: 'cost',
-              headerName: 'Giá',
+              headerName: 'Giá (đ)',
               width: 150,
+              valueGetter: (params: CellParams): string => {
+                return params.value.toLocaleString();
+              },
             },
             {
               field: 'action',
