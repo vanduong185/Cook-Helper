@@ -70,6 +70,13 @@ export class DishController {
     ipcMain.handle(
       'dish-add',
       async (_event, dish: Dish): Promise<Dish> => {
+        // create new cook type if it not exist
+        if (!dish.cookType.id) {
+          const cookTypeRepo = this.database.connection.getRepository(CookType);
+          const newCookType = await cookTypeRepo.save(dish.cookType);
+          dish.cookType = newCookType;
+        }
+
         const dishRepo = this.database.connection.getRepository(Dish);
         const newDish = await dishRepo.save(dish);
 
@@ -100,6 +107,13 @@ export class DishController {
     ipcMain.handle(
       'dish-update',
       async (_event, dish: Dish): Promise<boolean> => {
+        // create new cook type if it not exist
+        if (!dish.cookType.id) {
+          const cookTypeRepo = this.database.connection.getRepository(CookType);
+          const newCookType = await cookTypeRepo.save(dish.cookType);
+          dish.cookType = newCookType;
+        }
+
         const dishRepo = this.database.connection.getRepository(Dish);
 
         await dishRepo

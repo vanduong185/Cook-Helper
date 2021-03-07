@@ -20,6 +20,7 @@ import {
   Apps,
   Home,
   Category,
+  Cake,
 } from '@material-ui/icons';
 import { DRAWER_WIDTH } from '../../constants/AppConst';
 import { toggleNavbar } from './NavbarSlice';
@@ -61,6 +62,11 @@ const navItemsData: NavItemData[] = [
     title: 'Quản lý đơn vị',
     link: '/units',
     icon: <Category />,
+  },
+  {
+    title: 'Quản lý cách chế biến',
+    link: '/cooktypes',
+    icon: <Cake />,
   },
 ];
 
