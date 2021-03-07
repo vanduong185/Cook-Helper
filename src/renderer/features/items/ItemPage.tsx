@@ -11,6 +11,7 @@ import { ItemDTO } from '../../dto/ItemDTO';
 import { ActionButton } from '../../components/commons/ActionButton';
 import { ConfirmDeleteDialog } from '../../components/commons/ConfirmDeleteDialog';
 import { GRID_DEFAULT_LOCALE_TEXT } from '../../constants/AppConst';
+import { SearchInput } from '../../components/commons/SearchInput';
 
 export const ItemPage = (): ReactElement => {
   const [openEditModal, setOpenEditModal] = React.useState(false);
@@ -18,6 +19,7 @@ export const ItemPage = (): ReactElement => {
     false,
   );
   const [selectedItem, setSelectedItem] = React.useState<ItemDTO>();
+  const [searchKey, setSearchKey] = React.useState<string>(undefined);
 
   const dispatch = useDispatch();
 
@@ -51,10 +53,31 @@ export const ItemPage = (): ReactElement => {
     dispatch(deleteItem(item));
   };
 
+  const searchItem = (key: string): void => {
+    setSearchKey(key);
+  };
+
+  const getFilteredItems = (key: string): ItemDTO[] => {
+    if (!key || key.length <= 0) {
+      return items;
+    }
+
+    return items.filter((item): boolean => {
+      const itemName = item.name.toLocaleLowerCase();
+      return itemName.includes(key.toLocaleLowerCase());
+    });
+  };
+
   return (
     <Container>
       <h1>Quản lý nguyên liệu</h1>
-      <Box display="flex" justifyContent="flex-end" my="20px">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        my="20px"
+      >
+        <SearchInput onFinishChange={searchItem}></SearchInput>
         <Button
           variant="contained"
           color="primary"
@@ -70,7 +93,7 @@ export const ItemPage = (): ReactElement => {
         <DataGrid
           localeText={GRID_DEFAULT_LOCALE_TEXT}
           hideFooterSelectedRowCount
-          rows={items}
+          rows={getFilteredItems(searchKey)}
           columns={[
             {
               field: 'seq',

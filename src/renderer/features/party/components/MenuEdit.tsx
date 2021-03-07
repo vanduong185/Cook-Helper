@@ -22,6 +22,7 @@ import { MenuDTO } from '../../../dto/MenuDTO';
 import { addMenuToParty, updateMenuFromParty } from '../PartySlice';
 import { Utils } from '../../../utils/Utils';
 import { GRID_DEFAULT_LOCALE_TEXT } from '../../../constants/AppConst';
+import { SearchInput } from '../../../components/commons/SearchInput';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -63,6 +64,8 @@ export const MenuEdit = (props: Props): ReactElement => {
     nameField: undefined,
     amountField: undefined,
   });
+
+  const [searchKey, setSearchKey] = React.useState<string>(undefined);
 
   const getMenuPrice = (): number => {
     return Utils.getMenuPrice(menu);
@@ -148,6 +151,21 @@ export const MenuEdit = (props: Props): ReactElement => {
       amountField: undefined,
     };
     setErrorTexts(tmpErrorTexts);
+  };
+
+  const searchDish = (key: string): void => {
+    setSearchKey(key);
+  };
+
+  const getFilteredDishes = (key: string): DishDTO[] => {
+    if (!key || key.length <= 0) {
+      return dishes;
+    }
+
+    return dishes.filter((dish): boolean => {
+      const dishName = dish.name.toLocaleLowerCase();
+      return dishName.includes(key.toLocaleLowerCase());
+    });
   };
 
   return (
@@ -261,11 +279,20 @@ export const MenuEdit = (props: Props): ReactElement => {
       </Box>
 
       <Box style={{ height: 500, width: '100%', margin: '30px 0px' }}>
-        <h2>Tất cả các món ăn</h2>
+        <Box display="flex" flexDirection="row" alignItems="center">
+          <h2>Tất cả các món ăn</h2>
+          <SearchInput
+            size="small"
+            onFinishChange={searchDish}
+            style={{
+              marginLeft: 50,
+            }}
+          ></SearchInput>
+        </Box>
         <DataGrid
           localeText={GRID_DEFAULT_LOCALE_TEXT}
           hideFooterSelectedRowCount
-          rows={dishes}
+          rows={getFilteredDishes(searchKey)}
           columns={[
             {
               field: 'action',
