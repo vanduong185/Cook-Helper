@@ -10,6 +10,7 @@ import { UnitDTO } from '../../dto/UnitDTO';
 import { ToolDTO } from '../../dto/ToolDTO';
 import { ActionButton } from '../../components/commons/ActionButton';
 import { ConfirmDeleteDialog } from '../../components/commons/ConfirmDeleteDialog';
+import { GRID_DEFAULT_LOCALE_TEXT } from '../../constants/AppConst';
 
 export const ToolPage = (): ReactElement => {
   const [openEditModal, setOpenEditModal] = React.useState(false);
@@ -67,6 +68,8 @@ export const ToolPage = (): ReactElement => {
       </Box>
       <div style={{ height: 650, width: '100%' }}>
         <DataGrid
+          localeText={GRID_DEFAULT_LOCALE_TEXT}
+          hideFooterSelectedRowCount
           rows={tools}
           columns={[
             {

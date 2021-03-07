@@ -1,6 +1,7 @@
 import { Box } from '@material-ui/core';
 import { CellParams, DataGrid } from '@material-ui/data-grid';
 import React, { ReactElement } from 'react';
+import { GRID_DEFAULT_LOCALE_TEXT } from '../../../constants/AppConst';
 import { ToolDTO } from '../../../dto/ToolDTO';
 import { ToolStatsDTO } from '../../../dto/ToolStatsDTO';
 import { Utils } from '../../../utils/Utils';
@@ -23,6 +24,8 @@ export const ToolTable = (props: Props): ReactElement => {
       }}
     >
       <DataGrid
+        localeText={GRID_DEFAULT_LOCALE_TEXT}
+        hideFooterSelectedRowCount
         rows={props.toolStats}
         columns={[
           {

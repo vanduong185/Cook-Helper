@@ -10,6 +10,7 @@ import { CookTypeDTO } from '../../dto/CookTypeDTO';
 import { DishDTO } from '../../dto/DishDTO';
 import { ActionButton } from '../../components/commons/ActionButton';
 import { ConfirmDeleteDialog } from '../../components/commons/ConfirmDeleteDialog';
+import { GRID_DEFAULT_LOCALE_TEXT } from '../../constants/AppConst';
 
 export const DishPage = (): ReactElement => {
   const [openEditModal, setOpenEditModal] = React.useState(false);
@@ -68,6 +69,8 @@ export const DishPage = (): ReactElement => {
 
       <div style={{ height: 650, width: '100%', marginBottom: '30px' }}>
         <DataGrid
+          localeText={GRID_DEFAULT_LOCALE_TEXT}
+          hideFooterSelectedRowCount
           rows={dishes}
           columns={[
             {

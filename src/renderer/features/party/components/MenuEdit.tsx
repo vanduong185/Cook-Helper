@@ -21,6 +21,7 @@ import { DishItem } from './DishItem';
 import { MenuDTO } from '../../../dto/MenuDTO';
 import { addMenuToParty, updateMenuFromParty } from '../PartySlice';
 import { Utils } from '../../../utils/Utils';
+import { GRID_DEFAULT_LOCALE_TEXT } from '../../../constants/AppConst';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -262,6 +263,8 @@ export const MenuEdit = (props: Props): ReactElement => {
       <Box style={{ height: 500, width: '100%', margin: '30px 0px' }}>
         <h2>Tất cả các món ăn</h2>
         <DataGrid
+          localeText={GRID_DEFAULT_LOCALE_TEXT}
+          hideFooterSelectedRowCount
           rows={dishes}
           columns={[
             {
