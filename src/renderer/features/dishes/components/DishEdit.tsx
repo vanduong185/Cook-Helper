@@ -299,7 +299,7 @@ export const DishEdit = (props: Props): ReactElement => {
               />
             )}
             style={{
-              width: 350,
+              width: 300,
             }}
           />
         </Box>

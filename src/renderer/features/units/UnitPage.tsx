@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../../store/store';
 import { UnitDTO } from '../../dto/UnitDTO';
 import { getUnits } from './UnitSlice';
+import { GRID_DEFAULT_LOCALE_TEXT } from '../../constants/AppConst';
 
 export const UnitPage = (): ReactElement => {
   const [openEditModal, setOpenEditModal] = React.useState(false);
@@ -50,6 +51,8 @@ export const UnitPage = (): ReactElement => {
       </Box>
       <div style={{ height: 650, width: '100%' }}>
         <DataGrid
+          localeText={GRID_DEFAULT_LOCALE_TEXT}
+          hideFooterSelectedRowCount
           rows={units}
           columns={[
             {

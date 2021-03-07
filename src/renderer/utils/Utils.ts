@@ -4,6 +4,10 @@ import { ToolStatsDTO } from '../dto/ToolStatsDTO';
 import { DishDTO } from '../dto/DishDTO';
 
 export class Utils {
+  static formatTwoDecimaNumber(num: number): number {
+    return Math.round(num * 100) / 100;
+  }
+
   static getMenuPrice(menu: MenuDTO): number {
     let totalPrice = 0;
     menu.dishes.forEach((dish) => {

@@ -15,6 +15,7 @@ const useStyles = makeStyles(() => ({
     height: '100vh',
     overflow: 'auto',
     paddingTop: '65px',
+    paddingBottom: '65px',
   },
 }));
 

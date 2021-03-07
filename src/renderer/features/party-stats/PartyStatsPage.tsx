@@ -121,7 +121,9 @@ export const PartyStatsPage = (): ReactElement => {
 
         <Box display="flex" alignItems="center" mr="30px">
           <span style={{ margin: '5px 10px 5px 0px' }}>Giá thực đơn:</span>
-          <span className={classes.labelBig}>{`${getMenuPrice(menu)}đ`}</span>
+          <span className={classes.labelBig}>
+            {`${getMenuPrice(menu).toLocaleString()}đ`}
+          </span>
         </Box>
 
         <Box display="flex" alignItems="center" mr="30px">
