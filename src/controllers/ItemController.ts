@@ -43,6 +43,13 @@ export class ItemController {
     ipcMain.handle(
       'item-update',
       async (_event, item: Item): Promise<Item> => {
+        // create new unit if it not exist
+        if (!item.unit.id) {
+          const unitRepo = this.database.connection.getRepository(Unit);
+          const newUnit = await unitRepo.save(item.unit);
+          item.unit = newUnit;
+        }
+
         const itemRepo = this.database.connection.getRepository(Item);
 
         await itemRepo
