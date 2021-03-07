@@ -43,6 +43,13 @@ export class ToolController {
     ipcMain.handle(
       'tool-update',
       async (_event, tool: Tool): Promise<Tool> => {
+        // create new unit if it not exist
+        if (!tool.unit.id) {
+          const unitRepo = this.database.connection.getRepository(Unit);
+          const newUnit = await unitRepo.save(tool.unit);
+          tool.unit = newUnit;
+        }
+
         const toolRepo = this.database.connection.getRepository(Tool);
 
         await toolRepo
