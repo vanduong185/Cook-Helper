@@ -71,8 +71,6 @@ export const ToolEdit = (props: Props): ReactElement => {
       return;
     }
 
-    console.log(tool);
-
     dispatch(addTool(tool));
     props.onClose();
   };

@@ -11,6 +11,7 @@ import { ToolDTO } from '../../dto/ToolDTO';
 import { ActionButton } from '../../components/commons/ActionButton';
 import { ConfirmDeleteDialog } from '../../components/commons/ConfirmDeleteDialog';
 import { GRID_DEFAULT_LOCALE_TEXT } from '../../constants/AppConst';
+import { SearchInput } from '../../components/commons/SearchInput';
 
 export const ToolPage = (): ReactElement => {
   const [openEditModal, setOpenEditModal] = React.useState(false);
@@ -18,6 +19,7 @@ export const ToolPage = (): ReactElement => {
     false,
   );
   const [selectedTool, setSelectedTool] = React.useState<ToolDTO>();
+  const [searchKey, setSearchKey] = React.useState<string>(undefined);
 
   const dispatch = useDispatch();
 
@@ -51,10 +53,31 @@ export const ToolPage = (): ReactElement => {
     dispatch(deleteTool(tool));
   };
 
+  const searchTool = (key: string): void => {
+    setSearchKey(key);
+  };
+
+  const getFilteredTools = (key: string): ToolDTO[] => {
+    if (!key || key.length <= 0) {
+      return tools;
+    }
+
+    return tools.filter((tool): boolean => {
+      const toolName = tool.name.toLocaleLowerCase();
+      return toolName.includes(key.toLocaleLowerCase());
+    });
+  };
+
   return (
     <Container>
       <h1>Quản lý dụng cụ</h1>
-      <Box display="flex" justifyContent="flex-end" my="20px">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        my="20px"
+      >
+        <SearchInput onFinishChange={searchTool}></SearchInput>
         <Button
           variant="contained"
           color="primary"
@@ -70,7 +93,7 @@ export const ToolPage = (): ReactElement => {
         <DataGrid
           localeText={GRID_DEFAULT_LOCALE_TEXT}
           hideFooterSelectedRowCount
-          rows={tools}
+          rows={getFilteredTools(searchKey)}
           columns={[
             {
               field: 'seq',

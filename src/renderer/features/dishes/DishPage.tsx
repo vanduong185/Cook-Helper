@@ -11,6 +11,7 @@ import { DishDTO } from '../../dto/DishDTO';
 import { ActionButton } from '../../components/commons/ActionButton';
 import { ConfirmDeleteDialog } from '../../components/commons/ConfirmDeleteDialog';
 import { GRID_DEFAULT_LOCALE_TEXT } from '../../constants/AppConst';
+import { SearchInput } from '../../components/commons/SearchInput';
 
 export const DishPage = (): ReactElement => {
   const [openEditModal, setOpenEditModal] = React.useState(false);
@@ -18,6 +19,7 @@ export const DishPage = (): ReactElement => {
     false,
   );
   const [selectedDish, setSelectedDish] = React.useState<DishDTO>();
+  const [searchKey, setSearchKey] = React.useState<string>(undefined);
 
   const dispatch = useDispatch();
 
@@ -51,10 +53,31 @@ export const DishPage = (): ReactElement => {
     dispatch(deleteDish(dish));
   };
 
+  const searchDish = (key: string): void => {
+    setSearchKey(key);
+  };
+
+  const getFilteredDishes = (key: string): DishDTO[] => {
+    if (!key || key.length <= 0) {
+      return dishes;
+    }
+
+    return dishes.filter((dish): boolean => {
+      const dishName = dish.name.toLocaleLowerCase();
+      return dishName.includes(key.toLocaleLowerCase());
+    });
+  };
+
   return (
     <Container>
       <h1>Quản lý món ăn</h1>
-      <Box display="flex" justifyContent="flex-end" my="20px">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        my="20px"
+      >
+        <SearchInput onFinishChange={searchDish}></SearchInput>
         <Button
           variant="contained"
           color="primary"
@@ -71,7 +94,7 @@ export const DishPage = (): ReactElement => {
         <DataGrid
           localeText={GRID_DEFAULT_LOCALE_TEXT}
           hideFooterSelectedRowCount
-          rows={dishes}
+          rows={getFilteredDishes(searchKey)}
           columns={[
             {
               field: 'seq',
