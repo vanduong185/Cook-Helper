@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Item } from './Item';
+import { Tool } from './Tool';
 
 @Entity()
 export class Unit {
@@ -17,4 +18,7 @@ export class Unit {
 
   @OneToMany(() => Item, (item) => item.unit)
   items?: Item[];
+
+  @OneToMany(() => Tool, (tool) => tool.unit)
+  tools?: Tool[];
 }

@@ -3,17 +3,23 @@ import { Switch, Route } from 'react-router-dom';
 import { HomePage } from '../../features/home/HomePage';
 import { ItemPage } from '../../features/items/ItemPage';
 import { PartyPage } from '../../features/party/PartyPage';
-import { DishesPage } from '../../features/dishes/DishesPage';
+import { DishPage } from '../../features/dishes/DishPage';
 import { ToolPage } from '../../features/tools/ToolPage';
+import { PartyStatsPage } from '../../features/party-stats/PartyStatsPage';
+import { UnitPage } from '../../features/units/UnitPage';
+import { CookTypePage } from '../../features/cook-types/CookTypePage';
 
 export const AppRouter = (): ReactElement => {
   return (
     <Switch>
       <Route path="/" exact component={HomePage} />
       <Route path="/party" component={PartyPage} />
-      <Route path="/dishes" component={DishesPage} />
+      <Route path="/party-stats" component={PartyStatsPage} />
+      <Route path="/dishes" component={DishPage} />
       <Route path="/items" component={ItemPage} />
       <Route path="/tools" component={ToolPage} />
+      <Route path="/units" component={UnitPage} />
+      <Route path="/cooktypes" component={CookTypePage} />
     </Switch>
   );
 };

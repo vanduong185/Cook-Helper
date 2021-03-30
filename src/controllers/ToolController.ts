@@ -1,9 +1,12 @@
 import { ipcMain } from 'electron';
 import { Database } from '../database/Database';
+import { DishTool } from '../database/models/DishTool';
 import { Tool } from '../database/models/Tool';
+import { Unit } from '../database/models/Unit';
 
 export class ToolController {
   database: Database;
+
   constructor() {
     this.database = global.database;
     this.init();
@@ -24,6 +27,13 @@ export class ToolController {
     ipcMain.handle(
       'tool-add',
       async (_event, tool: Tool): Promise<Tool> => {
+        // create new unit if it not exist
+        if (!tool.unit.id) {
+          const unitRepo = this.database.connection.getRepository(Unit);
+          const newUnit = await unitRepo.save(tool.unit);
+          tool.unit = newUnit;
+        }
+
         const toolRepo = this.database.connection.getRepository(Tool);
         const newTool = await toolRepo.save(tool);
         return newTool;
@@ -33,6 +43,13 @@ export class ToolController {
     ipcMain.handle(
       'tool-update',
       async (_event, tool: Tool): Promise<Tool> => {
+        // create new unit if it not exist
+        if (!tool.unit.id) {
+          const unitRepo = this.database.connection.getRepository(Unit);
+          const newUnit = await unitRepo.save(tool.unit);
+          tool.unit = newUnit;
+        }
+
         const toolRepo = this.database.connection.getRepository(Tool);
 
         await toolRepo
@@ -51,8 +68,15 @@ export class ToolController {
     ipcMain.handle(
       'tool-delete',
       async (_event, tool: Tool): Promise<Tool> => {
-        const toolRepo = this.database.connection.getRepository(Tool);
+        const dishToolRepo = this.database.connection.getRepository(DishTool);
+        await dishToolRepo
+          .createQueryBuilder()
+          .delete()
+          .from(DishTool)
+          .where('toolId = :toolId', { toolId: tool.id })
+          .execute();
 
+        const toolRepo = this.database.connection.getRepository(Tool);
         await toolRepo
           .createQueryBuilder()
           .delete()

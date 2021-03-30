@@ -5,22 +5,32 @@ import {
   TextField,
   Divider,
   Box,
-  MenuItem,
   Button,
+  IconButton,
 } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { addTool, updateTool } from '../ToolSlice';
 import { ToolDTO } from '../../../dto/ToolDTO';
 import { getUnits } from '../../units/UnitSlice';
 import { AppState } from '../../../store/store';
+import { Close } from '@material-ui/icons';
+import { Autocomplete } from '@material-ui/lab';
+import { UnitDTO } from '../../../dto/UnitDTO';
+import { UnitInput } from '../../../components/commons/UnitInput';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
       width: '750px',
-      height: '500px',
+      height: '550px',
       padding: theme.spacing(2, 4, 3),
       overflow: 'auto',
+      position: 'relative',
+    },
+    closeButton: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
     },
   }),
 );
@@ -40,48 +50,127 @@ export const ToolEdit = (props: Props): ReactElement => {
   }, [dispatch]);
 
   const unitsData = useSelector((state: AppState) => state.units);
+  const toolsData = useSelector((state: AppState) => state.tools);
 
   const initTool: ToolDTO = props.tool || {
     id: undefined,
-    name: '',
-    size: '',
-    unit: {
-      id: undefined,
-      name: undefined,
-    },
+    name: undefined,
+    size: undefined,
+    unit: undefined,
   };
 
   const [tool, setTool] = React.useState<ToolDTO>(initTool);
+  const [errorTexts, setErrorTexts] = React.useState<ValidationErrorText>({
+    nameField: undefined,
+    unitField: undefined,
+  });
 
   const hanleCreateTool = (): void => {
+    const isValid = validateToolData();
+    if (!isValid) {
+      return;
+    }
+
     dispatch(addTool(tool));
     props.onClose();
   };
 
   const handleUpdateTool = (): void => {
+    const isValid = validateToolData();
+    if (!isValid) {
+      return;
+    }
+
     dispatch(updateTool(tool));
     props.onClose();
   };
 
+  const validateToolData = (): boolean => {
+    const errorsTmp = { ...errorTexts };
+    let isValid = true;
+
+    if (!tool.name || tool.name.length <= 0) {
+      errorsTmp.nameField = 'Không được để trống';
+      isValid = false;
+    }
+
+    if (!tool.unit) {
+      errorsTmp.unitField = 'Không được để trống';
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setErrorTexts(errorsTmp);
+    }
+
+    return isValid;
+  };
+
+  const updateName = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    value: string,
+  ): void => {
+    const tmpTool: ToolDTO = {
+      ...tool,
+      name: value,
+    };
+    setTool(tmpTool);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      nameField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
+  const updateSize = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const tmpTool: ToolDTO = {
+      ...tool,
+      size: event.target.value,
+    };
+    setTool(tmpTool);
+  };
+
+  const updateUnit = (unit: UnitDTO): void => {
+    const tmpTool: ToolDTO = {
+      ...tool,
+      unit,
+    };
+    setTool(tmpTool);
+
+    const tmpErrorTexts: ValidationErrorText = {
+      ...errorTexts,
+      unitField: undefined,
+    };
+    setErrorTexts(tmpErrorTexts);
+  };
+
   return (
     <Paper className={classes.paper}>
+      <IconButton className={classes.closeButton} onClick={props.onClose}>
+        <Close />
+      </IconButton>
       <h1>{props.isEdit ? 'Sửa dụng cụ' : 'Thêm dụng cụ mới'}</h1>
       <Divider></Divider>
       <Box my="30px">
-        <TextField
-          required
-          id="outlined-required"
-          label="Tên dụng cụ"
-          defaultValue={tool.name}
-          placeholder="Nhập tên dụng cụ"
-          onChange={(event): void => {
-            const tmpTool: ToolDTO = {
-              ...tool,
-              name: event.target.value,
-            };
-            setTool(tmpTool);
-          }}
-          variant="outlined"
+        <Autocomplete
+          freeSolo
+          disableClearable
+          options={toolsData.map((toolData): string => toolData.name)}
+          defaultValue={props.tool?.name || ''}
+          inputValue={tool.name || ''}
+          onInputChange={updateName}
+          renderInput={(params): ReactElement => (
+            <TextField
+              {...params}
+              required
+              label="Tên dụng cụ"
+              placeholder="Nhập tên dụng cụ"
+              error={!!errorTexts.nameField}
+              helperText={errorTexts.nameField}
+              variant="outlined"
+            />
+          )}
           style={{
             width: 350,
           }}
@@ -90,18 +179,10 @@ export const ToolEdit = (props: Props): ReactElement => {
 
       <Box my="30px">
         <TextField
-          required
-          id="outlined-required"
           label="Kích cỡ"
           defaultValue={tool.size}
           placeholder="Nhập kích cỡ"
-          onChange={(event): void => {
-            const tmpTool: ToolDTO = {
-              ...tool,
-              size: event.target.value,
-            };
-            setTool(tmpTool);
-          }}
+          onChange={updateSize}
           variant="outlined"
           style={{
             width: 350,
@@ -110,31 +191,13 @@ export const ToolEdit = (props: Props): ReactElement => {
       </Box>
 
       <Box my="30px">
-        <TextField
-          select
-          required
-          label="Đơn vị"
-          variant="outlined"
-          value={tool.unit.id || ''}
-          onChange={(event): void => {
-            const unitId = +event.target.value;
-            const unit = unitsData.find((u) => u.id === unitId);
-            const tmpTool: ToolDTO = {
-              ...tool,
-              unit,
-            };
-            setTool(tmpTool);
-          }}
-          style={{
-            width: 350,
-          }}
-        >
-          {unitsData.map((option) => (
-            <MenuItem key={option.id} value={option.id}>
-              {option.name}
-            </MenuItem>
-          ))}
-        </TextField>
+        <UnitInput
+          unitsData={unitsData}
+          error={!!errorTexts.unitField}
+          helperText={errorTexts.unitField}
+          value={tool.unit}
+          onChange={updateUnit}
+        />
       </Box>
 
       <Box mt="60px" display="flex" justifyContent="flex-end">
@@ -149,3 +212,8 @@ export const ToolEdit = (props: Props): ReactElement => {
     </Paper>
   );
 };
+
+interface ValidationErrorText {
+  nameField: string;
+  unitField: string;
+}
