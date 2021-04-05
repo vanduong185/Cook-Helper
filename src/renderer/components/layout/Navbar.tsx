@@ -21,6 +21,7 @@ import {
   Home,
   Category,
   Cake,
+  Description,
 } from '@material-ui/icons';
 import { DRAWER_WIDTH } from '../../constants/AppConst';
 import { toggleNavbar } from './NavbarSlice';
@@ -42,6 +43,11 @@ const navItemsData: NavItemData[] = [
     title: 'Tạo tiệc',
     link: '/party',
     icon: <MenuBook />,
+  },
+  {
+    title: 'Thực đơn',
+    link: '/menus',
+    icon: <Description />,
   },
   {
     title: 'Quản lý món',
