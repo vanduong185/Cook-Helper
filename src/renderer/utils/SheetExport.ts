@@ -222,7 +222,7 @@ export class SheetExport {
       row['STT'] = index + 1;
       row['Tên nguyên liệu'] = itemStat.item.name;
       row['Nơi cung cấp'] = itemStat.item.provider;
-      row['Số lượng'] = Utils.formatTwoDecimaNumber(itemStat.amount);
+      row['Số lượng'] = Utils.roundAmountNumber(itemStat.amount);
       row['Đơn vị'] = itemStat.item.unit.name;
 
       table.push(row);
@@ -239,7 +239,7 @@ export class SheetExport {
       row['STT'] = index + 1;
       row['Tên dụng cụ'] = toolStat.tool.name;
       row['Kích cỡ'] = toolStat.tool.size;
-      row['Số lượng'] = Utils.formatTwoDecimaNumber(toolStat.amount);
+      row['Số lượng'] = Utils.roundAmountNumber(toolStat.amount);
       row['Đơn vị'] = toolStat.tool.unit.name;
 
       table.push(row);

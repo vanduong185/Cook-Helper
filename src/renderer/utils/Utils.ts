@@ -8,6 +8,21 @@ export class Utils {
     return Math.round(num * 100) / 100;
   }
 
+  static roundAmountNumber(amount: number): number {
+    const div = Math.floor(amount);
+    const mod = amount % div;
+
+    if (mod === 0) {
+      return div;
+    }
+
+    if (mod <= 0.5) {
+      return div + 0.5;
+    } else {
+      return div + 1;
+    }
+  }
+
   static getMenuPrice(menu: MenuDTO): number {
     let totalPrice = 0;
     menu.dishes.forEach((dish) => {
