@@ -5,7 +5,7 @@ import { DishDTO } from '../dto/DishDTO';
 
 export class Utils {
   static formatTwoDecimaNumber(num: number): number {
-    return Math.round(num * 100) / 100;
+    return Math.round(num * 1000) / 1000;
   }
 
   static roundAmountNumber(amount: number): number {

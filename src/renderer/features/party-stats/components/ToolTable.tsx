@@ -60,7 +60,7 @@ export const ToolTable = (props: Props): ReactElement => {
             width: 180,
             valueGetter: (params: CellParams): string => {
               const amount = params.value as number;
-              const formatAmount = Utils.roundAmountNumber(amount);
+              const formatAmount = Utils.formatTwoDecimaNumber(amount);
               return formatAmount.toLocaleString();
             },
           },
