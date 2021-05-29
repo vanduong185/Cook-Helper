@@ -2,8 +2,11 @@ import React, { ReactElement } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { Paper, IconButton, Button } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
-import { SheetExport } from '../../../utils/SheetExport';
 import { MenuDTO } from '../../../dto/MenuDTO';
+import {
+  exportItemProviderFile,
+  exportItemToolFile,
+} from '../../../utils/SheetExport2';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -36,13 +39,11 @@ export const ExportModal = (props: Props): ReactElement => {
   const classes = useStyles();
 
   const handleStatItemTool = (): void => {
-    const sheetExport = new SheetExport();
-    sheetExport.exportItemToolStat(props.menus);
+    exportItemToolFile(props.menus);
   };
 
   const handleStatByProvider = (): void => {
-    const sheetExport = new SheetExport();
-    sheetExport.exportItemByProvider(props.menus);
+    exportItemProviderFile(props.menus);
   };
 
   return (
