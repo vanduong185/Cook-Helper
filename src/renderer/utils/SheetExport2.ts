@@ -1,5 +1,5 @@
 import * as ExcelJS from 'exceljs';
-import { remote } from 'electron';
+import { remote, shell } from 'electron';
 import { MenuDTO } from '../dto/MenuDTO';
 import { Utils } from './Utils';
 import { ItemStatsDTO } from '../dto/ItemStatsDTO';
@@ -104,10 +104,19 @@ export const exportItemToolFile = async (menus: MenuDTO[]): Promise<void> => {
 
   await workbook.xlsx.writeFile(saveFile.filePath);
 
-  remote.dialog.showMessageBox({
-    message: 'Đã xuất tệp thống kê tại ' + saveFile.filePath,
-    buttons: ['OK'],
-  });
+  remote.dialog
+    .showMessageBox({
+      type: 'question',
+      message: `Đã xuất tệp thống kê. Bạn có muốn mở tệp này không?`,
+      detail: `Đường dẫn tệp ${saveFile.filePath}`,
+      buttons: ['Đóng', 'Mở tệp'],
+      defaultId: 1,
+    })
+    .then((value) => {
+      if (value.response === 1) {
+        shell.openPath(saveFile.filePath);
+      }
+    });
 };
 
 export const exportItemProviderFile = async (
@@ -194,10 +203,19 @@ export const exportItemProviderFile = async (
 
   await workbook.xlsx.writeFile(saveFile.filePath);
 
-  remote.dialog.showMessageBox({
-    message: 'Đã xuất tệp thống kê tại ' + saveFile.filePath,
-    buttons: ['OK'],
-  });
+  remote.dialog
+    .showMessageBox({
+      type: 'question',
+      message: `Đã xuất tệp thống kê. Bạn có muốn mở tệp này không?`,
+      detail: `Đường dẫn tệp ${saveFile.filePath}`,
+      buttons: ['Đóng', 'Mở tệp'],
+      defaultId: 1,
+    })
+    .then((value) => {
+      if (value.response === 1) {
+        shell.openPath(saveFile.filePath);
+      }
+    });
 };
 
 const createItemTableToWorksheet = (
