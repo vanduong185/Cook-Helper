@@ -5,7 +5,7 @@ import { ToolStatsDTO } from '../dto/ToolStatsDTO';
 import { MenuDTO } from '../dto/MenuDTO';
 import { Utils } from './Utils';
 
-const EXTENSIONS = 'xls|xlsx|xlsm|xlsb|xml|csv|txt|dif|sylk|slk|prn|ods|fods|htm|html'.split(
+const EXTENSIONS = 'xlsx|xls|xlsm|xlsb|xml|csv|txt|dif|sylk|slk|prn|ods|fods|htm|html'.split(
   '|',
 );
 
