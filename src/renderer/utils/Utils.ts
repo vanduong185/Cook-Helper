@@ -5,7 +5,22 @@ import { DishDTO } from '../dto/DishDTO';
 
 export class Utils {
   static formatTwoDecimaNumber(num: number): number {
-    return Math.round(num * 100) / 100;
+    return Math.round(num * 1000) / 1000;
+  }
+
+  static roundAmountNumber(amount: number): number {
+    const div = Math.floor(amount);
+    const mod = amount % div;
+
+    if (mod === 0) {
+      return div;
+    }
+
+    if (mod <= 0.5) {
+      return div + 0.5;
+    } else {
+      return div + 1;
+    }
   }
 
   static getMenuPrice(menu: MenuDTO): number {
