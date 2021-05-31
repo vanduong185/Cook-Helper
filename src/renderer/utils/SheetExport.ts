@@ -1,250 +1,373 @@
-import * as XLSX from 'xlsx';
-import { remote } from 'electron';
+import * as ExcelJS from 'exceljs';
+import { remote, shell } from 'electron';
+import { Utils } from './Utils';
+import { MenuDTO } from '../dto/MenuDTO';
 import { ItemStatsDTO } from '../dto/ItemStatsDTO';
 import { ToolStatsDTO } from '../dto/ToolStatsDTO';
-import { MenuDTO } from '../dto/MenuDTO';
-import { Utils } from './Utils';
 
 const EXTENSIONS = 'xlsx|xls|xlsm|xlsb|xml|csv|txt|dif|sylk|slk|prn|ods|fods|htm|html'.split(
   '|',
 );
 
-const MARGIN_ROW = 3;
+export const exportItemToolFile = async (menus: MenuDTO[]): Promise<void> => {
+  const workbook = new ExcelJS.Workbook();
 
-type KeyValue = { [x: string]: string | number };
+  const createItemSheet = (): ExcelJS.Worksheet => {
+    const ws = workbook.addWorksheet('Tổng nguyên liệu');
+    ws.pageSetup.margins = {
+      left: 0.25,
+      right: 0.25,
+      top: 0.75,
+      bottom: 0.75,
+      header: 0.3,
+      footer: 0.3,
+    };
+    ws.properties.defaultRowHeight = 16;
 
-export class SheetExport {
-  exportItemToolStat(menus: MenuDTO[]): void {
-    const workbook = XLSX.utils.book_new();
-
-    const itemWorkSheet = this.createItemSheet(menus);
-    XLSX.utils.book_append_sheet(workbook, itemWorkSheet, 'Tổng nguyên liệu');
-
-    const toolWorkSheet = this.createToolSheet(menus);
-    XLSX.utils.book_append_sheet(workbook, toolWorkSheet, 'Tổng dụng cụ');
-
-    this.saveFile(workbook);
-  }
-
-  createItemSheet(menus: MenuDTO[]): XLSX.WorkSheet {
-    // Table of total stats
-    let rowPos = 0;
-    const worksheet = XLSX.utils.aoa_to_sheet([
-      ['Thống kê tổng nguyên liệu'.toUpperCase()],
-    ]);
-    rowPos++;
+    let rowPos = 1;
 
     const itemStats = Utils.getItemStats(menus);
-    const itemTableData = this.convertToItemTable(itemStats);
-    XLSX.utils.sheet_add_json(worksheet, itemTableData, {
-      origin: {
-        r: rowPos,
-        c: 0,
-      },
-    });
-    rowPos += itemTableData.length + MARGIN_ROW;
+    createItemTableToWorksheet(
+      ws,
+      rowPos,
+      'Thống kê tổng nguyên liệu',
+      itemStats,
+    );
+    rowPos = rowPos + itemStats.length + 4;
 
-    // Table of stat of each dish
     const allDishes = Utils.getDishesInMenu(menus);
     allDishes.forEach((dish) => {
-      XLSX.utils.sheet_add_aoa(worksheet, [[`${dish.name}`.toUpperCase()]], {
-        origin: {
-          r: rowPos,
-          c: 0,
-        },
-      });
-      rowPos++;
-
       const itemStatsByDish = Utils.getItemStatsByDishId(dish.id, menus);
-      const itemTableByDish = this.convertToItemTable(itemStatsByDish);
-      XLSX.utils.sheet_add_json(worksheet, itemTableByDish, {
-        origin: {
-          r: rowPos,
-          c: 0,
-        },
-      });
-      rowPos += itemTableByDish.length + MARGIN_ROW;
+      createItemTableToWorksheet(ws, rowPos, dish.name, itemStatsByDish);
+      rowPos = rowPos + itemStatsByDish.length + 4;
     });
 
-    return worksheet;
-  }
+    ws.columns[0].width = 8;
+    ws.columns[1].width = 30;
+    ws.columns[2].width = 30;
+    ws.columns[3].width = 14;
+    ws.columns[4].width = 12;
 
-  createToolSheet(menus: MenuDTO[]): XLSX.WorkSheet {
-    // Table of total stats
-    let rowPos = 0;
-    const worksheet = XLSX.utils.aoa_to_sheet([
-      ['Thống kê tổng dụng cụ'.toUpperCase()],
-    ]);
-    rowPos++;
+    return ws;
+  };
+
+  const createToolSheet = (): ExcelJS.Worksheet => {
+    const ws = workbook.addWorksheet('Tổng dụng cụ');
+    ws.pageSetup.margins = {
+      left: 0.25,
+      right: 0.25,
+      top: 0.75,
+      bottom: 0.75,
+      header: 0.3,
+      footer: 0.3,
+    };
+    ws.properties.defaultRowHeight = 16;
+
+    let rowPos = 1;
 
     const toolStats = Utils.getToolStats(menus);
-    const toolTableData = this.convertToToolTable(toolStats);
-    XLSX.utils.sheet_add_json(worksheet, toolTableData, {
-      origin: {
-        r: rowPos,
-        c: 0,
-      },
-    });
-    rowPos += toolTableData.length + MARGIN_ROW;
+    createToolTableToWorksheet(ws, rowPos, 'Thống kê tổng dụng cụ', toolStats);
+    rowPos = rowPos + toolStats.length + 4;
 
-    // Table of stat of each dish
     const allDishes = Utils.getDishesInMenu(menus);
     allDishes.forEach((dish) => {
-      XLSX.utils.sheet_add_aoa(worksheet, [[`${dish.name}`.toUpperCase()]], {
-        origin: {
-          r: rowPos,
-          c: 0,
-        },
-      });
-      rowPos++;
-
       const toolStatsByDish = Utils.getToolStatsByDishId(dish.id, menus);
-      const toolTableByDish = this.convertToToolTable(toolStatsByDish);
-      XLSX.utils.sheet_add_json(worksheet, toolTableByDish, {
-        origin: {
-          r: rowPos,
-          c: 0,
-        },
-      });
-      rowPos += toolTableByDish.length + MARGIN_ROW;
+      createToolTableToWorksheet(ws, rowPos, dish.name, toolStatsByDish);
+      rowPos = rowPos + toolStatsByDish.length + 4;
     });
 
-    return worksheet;
+    ws.columns[0].width = 8;
+    ws.columns[1].width = 30;
+    ws.columns[2].width = 30;
+    ws.columns[3].width = 14;
+    ws.columns[4].width = 12;
+
+    return ws;
+  };
+
+  createItemSheet();
+  createToolSheet();
+
+  const saveFile = await remote.dialog.showSaveDialog({
+    title: 'Lưu tệp thống kê',
+    filters: [
+      {
+        name: 'Spreadsheets',
+        extensions: EXTENSIONS,
+      },
+    ],
+  });
+
+  if (saveFile.canceled) {
+    return;
   }
 
-  exportItemByProvider(menus: MenuDTO[]): void {
-    const workbook = XLSX.utils.book_new();
-    const itemStats = Utils.getItemStats(menus);
-    const allDishes = Utils.getDishesInMenu(menus);
-    const providers: string[] = [];
+  await workbook.xlsx.writeFile(saveFile.filePath);
 
-    // get providers
-    itemStats.forEach((itemStat): void => {
-      if (providers.indexOf(itemStat.item.provider) < 0) {
-        providers.push(itemStat.item.provider);
+  remote.dialog
+    .showMessageBox({
+      type: 'question',
+      message: `Đã xuất tệp thống kê. Bạn có muốn mở tệp này không?`,
+      detail: `Đường dẫn tệp ${saveFile.filePath}`,
+      buttons: ['Đóng', 'Mở tệp'],
+      defaultId: 1,
+    })
+    .then((value) => {
+      if (value.response === 1) {
+        shell.openPath(saveFile.filePath);
       }
     });
+};
 
-    // make sheet for each provider
-    providers.forEach((provider) => {
-      let rowPos = 0;
+export const exportItemProviderFile = async (
+  menus: MenuDTO[],
+): Promise<void> => {
+  const workbook = new ExcelJS.Workbook();
+  const itemStats = Utils.getItemStats(menus);
+  const allDishes = Utils.getDishesInMenu(menus);
+  const providers: string[] = [];
 
-      // title
-      const worksheet = XLSX.utils.aoa_to_sheet([
-        [`Thống kê nguyên liệu theo nơi cung cấp ${provider}`.toUpperCase()],
-      ]);
-      rowPos += 2;
-
-      // table of total item of provider
-      const itemsStatByProvider = itemStats.filter(
-        (itemStat) => itemStat.item.provider === provider,
-      );
-      const itemTableData = this.convertToItemTable(itemsStatByProvider);
-      XLSX.utils.sheet_add_json(worksheet, itemTableData, {
-        origin: {
-          r: rowPos,
-          c: 0,
-        },
-      });
-      rowPos += itemsStatByProvider.length + MARGIN_ROW;
-
-      // stat item of provider by dish
-      allDishes.forEach((dish) => {
-        // get item dish data
-        const itemStatsByDish = Utils.getItemStatsByDishId(dish.id, menus);
-        const itemStatByDishAndProvider = itemStatsByDish.filter(
-          (stat) => stat.item.provider === provider,
-        );
-        if (itemStatByDishAndProvider.length === 0) {
-          return;
-        }
-
-        // title
-        XLSX.utils.sheet_add_aoa(worksheet, [[`${dish.name}`.toUpperCase()]], {
-          origin: {
-            r: rowPos,
-            c: 0,
-          },
-        });
-        rowPos++;
-
-        // table
-        const itemTableByDishAndProvider = this.convertToItemTable(
-          itemStatByDishAndProvider,
-        );
-        XLSX.utils.sheet_add_json(worksheet, itemTableByDishAndProvider, {
-          origin: {
-            r: rowPos,
-            c: 0,
-          },
-        });
-        rowPos += itemStatByDishAndProvider.length + MARGIN_ROW;
-      });
-
-      // append worksheet to workbook
-      XLSX.utils.book_append_sheet(
-        workbook,
-        worksheet,
-        provider.substring(0, 30),
-      );
-    });
-
-    this.saveFile(workbook);
-  }
-
-  async saveFile(workbook: XLSX.WorkBook): Promise<void> {
-    const saveFile = await remote.dialog.showSaveDialog({
-      title: 'Lưu tệp thống kê',
-      filters: [
-        {
-          name: 'Spreadsheets',
-          extensions: EXTENSIONS,
-        },
-      ],
-    });
-
-    if (saveFile.canceled) {
-      return;
+  // get providers
+  itemStats.forEach((itemStat): void => {
+    if (providers.indexOf(itemStat.item.provider) < 0) {
+      providers.push(itemStat.item.provider);
     }
+  });
 
-    XLSX.writeFile(workbook, saveFile.filePath);
-    remote.dialog.showMessageBox({
-      message: 'Đã xuất tệp thống kê tại ' + saveFile.filePath,
-      buttons: ['OK'],
+  // make sheet for each provider
+  providers.forEach((provider) => {
+    const ws = workbook.addWorksheet(provider.substring(0, 30));
+    ws.pageSetup.margins = {
+      left: 0.25,
+      right: 0.25,
+      top: 0.75,
+      bottom: 0.75,
+      header: 0.3,
+      footer: 0.3,
+    };
+    ws.properties.defaultRowHeight = 16;
+
+    let rowPos = 1;
+
+    const itemsStatByProvider = itemStats.filter(
+      (itemStat) => itemStat.item.provider === provider,
+    );
+    createItemTableToWorksheet(
+      ws,
+      rowPos,
+      `Thống kê nguyên liệu theo nơi cung cấp ${provider}`.toUpperCase(),
+      itemsStatByProvider,
+    );
+    rowPos = rowPos + itemsStatByProvider.length + 4;
+
+    // stat item of provider by dish
+    allDishes.forEach((dish) => {
+      // get item dish data
+      const itemStatsByDish = Utils.getItemStatsByDishId(dish.id, menus);
+      const itemStatByDishAndProvider = itemStatsByDish.filter(
+        (stat) => stat.item.provider === provider,
+      );
+      if (itemStatByDishAndProvider.length === 0) {
+        return;
+      }
+
+      createItemTableToWorksheet(
+        ws,
+        rowPos,
+        dish.name.toUpperCase(),
+        itemStatByDishAndProvider,
+      );
+      rowPos = rowPos + itemStatByDishAndProvider.length + 4;
     });
+
+    ws.columns[0].width = 8;
+    ws.columns[1].width = 30;
+    ws.columns[2].width = 30;
+    ws.columns[3].width = 14;
+    ws.columns[4].width = 12;
+  });
+
+  const saveFile = await remote.dialog.showSaveDialog({
+    title: 'Lưu tệp thống kê',
+    filters: [
+      {
+        name: 'Spreadsheets',
+        extensions: EXTENSIONS,
+      },
+    ],
+  });
+
+  if (saveFile.canceled) {
+    return;
   }
 
-  convertToItemTable(itemStats: ItemStatsDTO[]): KeyValue[] {
-    const table: KeyValue[] = [];
+  await workbook.xlsx.writeFile(saveFile.filePath);
 
-    itemStats.forEach((itemStat, index) => {
-      const row: KeyValue = {};
-      row['STT'] = index + 1;
-      row['Tên nguyên liệu'] = itemStat.item.name;
-      row['Nơi cung cấp'] = itemStat.item.provider;
-      row['Số lượng'] = Utils.formatTwoDecimaNumber(itemStat.amount);
-      row['Đơn vị'] = itemStat.item.unit.name;
-
-      table.push(row);
+  remote.dialog
+    .showMessageBox({
+      type: 'question',
+      message: `Đã xuất tệp thống kê. Bạn có muốn mở tệp này không?`,
+      detail: `Đường dẫn tệp ${saveFile.filePath}`,
+      buttons: ['Đóng', 'Mở tệp'],
+      defaultId: 1,
+    })
+    .then((value) => {
+      if (value.response === 1) {
+        shell.openPath(saveFile.filePath);
+      }
     });
+};
 
-    return table;
-  }
+const createItemTableToWorksheet = (
+  ws: ExcelJS.Worksheet,
+  rowPos: number,
+  title: string,
+  data: ItemStatsDTO[],
+): void => {
+  // title
+  const titleRow = ws.insertRow(rowPos, [title.toUpperCase()]);
+  titleRow.height = 26;
+  const titleCell = titleRow.getCell(1);
+  titleCell.font = {
+    size: 16,
+    bold: true,
+  };
+  titleCell.alignment = {
+    vertical: 'middle',
+  };
 
-  convertToToolTable(toolStats: ToolStatsDTO[]): KeyValue[] {
-    const table: KeyValue[] = [];
+  // table
+  const headerRow = ws.insertRow(rowPos + 1, [
+    'STT',
+    'Tên nguyên liệu',
+    'Nơi cung cấp',
+    'Số lượng',
+    'Đơn vị',
+  ]);
+  headerRow.height = 20;
+  headerRow.eachCell((cell) => {
+    cell.alignment = {
+      horizontal: 'center',
+      vertical: 'middle',
+    };
+    cell.font = {
+      size: 14,
+      bold: true,
+    };
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'ffffd59c' },
+    };
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FF000000' } },
+      left: { style: 'thin', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right: { style: 'thin', color: { argb: 'FF000000' } },
+    };
+  });
 
-    toolStats.forEach((toolStat, index) => {
-      const row: KeyValue = {};
-      row['STT'] = index + 1;
-      row['Tên dụng cụ'] = toolStat.tool.name;
-      row['Kích cỡ'] = toolStat.tool.size;
-      row['Số lượng'] = Utils.formatTwoDecimaNumber(toolStat.amount);
-      row['Đơn vị'] = toolStat.tool.unit.name;
+  data.forEach((item, index) => {
+    const row = ws.insertRow(rowPos + 2 + index, [
+      index + 1,
+      item.item.name,
+      item.item.provider,
+      item.amount,
+      item.item.unit.name,
+    ]);
 
-      table.push(row);
+    row.height = 18;
+    row.eachCell((cell, colNumber) => {
+      cell.alignment = {
+        horizontal: colNumber === 1 ? 'center' : undefined,
+        vertical: 'middle',
+      };
+      cell.font = {
+        size: 14,
+      };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } },
+      };
     });
+  });
+};
 
-    return table;
-  }
-}
+const createToolTableToWorksheet = (
+  ws: ExcelJS.Worksheet,
+  rowPos: number,
+  title: string,
+  data: ToolStatsDTO[],
+): void => {
+  // title
+  const titleRow = ws.insertRow(rowPos, [title.toUpperCase()]);
+  titleRow.height = 26;
+  const titleCell = titleRow.getCell(1);
+  titleCell.font = {
+    size: 16,
+    bold: true,
+  };
+  titleCell.alignment = {
+    vertical: 'middle',
+  };
+
+  // table
+  const headerRow = ws.insertRow(rowPos + 1, [
+    'STT',
+    'Tên dụng cụ',
+    'Kích cỡ',
+    'Số lượng',
+    'Đơn vị',
+  ]);
+  headerRow.height = 20;
+  headerRow.eachCell((cell) => {
+    cell.alignment = {
+      horizontal: 'center',
+      vertical: 'middle',
+    };
+    cell.font = {
+      size: 14,
+      bold: true,
+    };
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'ff9edbae' },
+    };
+    cell.border = {
+      top: { style: 'thin', color: { argb: 'FF000000' } },
+      left: { style: 'thin', color: { argb: 'FF000000' } },
+      bottom: { style: 'thin', color: { argb: 'FF000000' } },
+      right: { style: 'thin', color: { argb: 'FF000000' } },
+    };
+  });
+
+  data.forEach((item, index) => {
+    const row = ws.insertRow(rowPos + 2 + index, [
+      index + 1,
+      item.tool.name,
+      item.tool.size,
+      item.amount,
+      item.tool.unit.name,
+    ]);
+
+    row.height = 18;
+    row.eachCell((cell, colNumber) => {
+      cell.alignment = {
+        horizontal: colNumber === 1 ? 'center' : undefined,
+        vertical: 'middle',
+      };
+      cell.font = {
+        size: 14,
+      };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } },
+      };
+    });
+  });
+};
