@@ -29,3 +29,4 @@ This uses the npm_config_python config, so values in **.npmrc** will be honoured
 ## Release
 `npm run make`
 - For **Windows**, make a Squirrel installer by default.
+a
